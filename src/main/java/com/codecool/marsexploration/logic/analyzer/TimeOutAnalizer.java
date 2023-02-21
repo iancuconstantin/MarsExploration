@@ -9,12 +9,10 @@ public class TimeOutAnalizer implements Analyzer{
 
     @Override
     public Optional<Outcome> analyze(Context context) {
+        int currentStep = context.getStepNumber();
+        long timeOut = context.getTimeout();
 
-        int currentStep = context.stepNumber();
-        long timeOut = context.timeout();
-
-
-
+        if(currentStep == timeOut) return Optional.of(Outcome.TIMEOUT);
         return Optional.empty();
     }
 }
