@@ -6,6 +6,7 @@ import com.codecool.marsexploration.data.Rover;
 import com.codecool.marsexploration.data.SimulationInput;
 import com.codecool.marsexploration.logic.phase.Phase;
 import com.codecool.marsexploration.logic.routine.ExploringRoutine;
+import com.codecool.marsexploration.logic.routine.ReturningRoutine;
 import com.codecool.marsexploration.logic.routine.Routine;
 import com.codecool.marsexploration.utils.ReadFile;
 
@@ -21,8 +22,16 @@ public class ExplorationSimulator {
 
     public void simulate(SimulationInput input) {
         Context context = process(input);
-        for(Phase phase:phases){
-            phase.perform(context);
+        while (context.getOutcome() == null){
+            for(Phase phase:phases){
+                phase.perform(context);
+            }
+            if(context.getOutcome() != null){
+                context.getRover().setState(new ReturningRoutine());
+            }
+            while (context.getRover().getCoordinate()!=context.getLanding()){
+                phases.get(0).perform(context);
+            }
         }
     }
 

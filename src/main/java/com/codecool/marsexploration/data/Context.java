@@ -1,5 +1,7 @@
 package com.codecool.marsexploration.data;
 
+import java.util.Optional;
+
 public class Context {
     private Integer stepNumber;
     private long timeout;
@@ -7,6 +9,7 @@ public class Context {
     private Coordinate landing;
     private Rover rover;
     private String logPath;
+    private Optional<Outcome> outcome;
 
     public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Rover rover, String logPath) {
         this.stepNumber = stepNumber;
@@ -63,5 +66,13 @@ public class Context {
 
     public void setLogPath(String logPath) {
         this.logPath = logPath;
+    }
+
+    public Optional<Outcome> getOutcome() {
+        return outcome;
+    }
+
+    public void setOutcome(Optional<Outcome> outcome) {
+        this.outcome = outcome;
     }
 }

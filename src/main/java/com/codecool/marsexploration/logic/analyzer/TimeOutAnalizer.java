@@ -12,7 +12,10 @@ public class TimeOutAnalizer implements Analyzer{
         int currentStep = context.getStepNumber();
         long timeOut = context.getTimeout();
 
-        if(currentStep == timeOut) return Optional.of(Outcome.TIMEOUT);
+        if(currentStep == timeOut) {
+            context.setOutcome(Optional.of(Outcome.TIMEOUT));
+            return context.getOutcome();
+        }
         return Optional.empty();
     }
 }
