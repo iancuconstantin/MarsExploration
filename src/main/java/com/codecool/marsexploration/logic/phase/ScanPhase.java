@@ -12,9 +12,9 @@ public class ScanPhase implements Phase{
     @Override
     public void perform(Context context) {
         Rover rover = context.rover();
-        int sight = context.rover().sight();
+        int sight = context.rover().getSight();
         Character[][] map = context.map();
-        Coordinate roverPsn = context.rover().coordinate();
+        Coordinate roverPsn = context.rover().getCoordinate();
         int maxX = Math.min((roverPsn.x() + sight), map.length);
         int minX = Math.max((roverPsn.x() - sight), 0);
         int maxY = Math.min((roverPsn.y() + sight), map.length);
@@ -23,7 +23,7 @@ public class ScanPhase implements Phase{
             for (int j = minY; j < maxY; j++){
                 String currentSymbol = map[i][j].toString();
                 if (Arrays.stream(Symbol.values()).anyMatch(s-> s.getSymbol().equals(currentSymbol))){
-                    rover.sightings().put(new Coordinate(i, j), currentSymbol);
+                    rover.getSightings().put(new Coordinate(i, j), currentSymbol);
                 }
             }
         }
