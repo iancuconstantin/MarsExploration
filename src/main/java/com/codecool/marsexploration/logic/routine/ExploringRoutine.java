@@ -18,16 +18,12 @@ public class ExploringRoutine implements Routine{
         Character[][] map = context.getMap();
         Random rand = new Random();
 
-        List<Coordinate> availableSpots = getAvailableNeighborSpots(roverPsn, map);
+        List<Coordinate> availableSpots = getEmptyNeighborSpots(roverPsn, map);
         Coordinate newPsn = availableSpots.get(rand.nextInt(availableSpots.size()));
-        //TODO - implement below in new rover method moveToNewPsn
-        rover.setCoordinate(newPsn);
-        List<Coordinate> previousPsns = rover.getTrackRecord();
-        previousPsns.add(newPsn);
-        rover.setTrackRecord(previousPsns);
+        rover.moveForward(newPsn);
     }
 
-    private List<Coordinate> getAvailableNeighborSpots(Coordinate roverPsn, Character[][] map){
+    private List<Coordinate> getEmptyNeighborSpots(Coordinate roverPsn, Character[][] map){
         List<Coordinate> availableSpots = new ArrayList<>();
         int[] dx = {-1, -1, -1, 0, 1, 1, 1, 0};
         int[] dy = {-1, 0, 1, 1, 1, 0, -1, -1};
@@ -36,7 +32,9 @@ public class ExploringRoutine implements Routine{
             int newX = roverPsn.x() + dx[i];
             int newY = roverPsn.y() + dy[i];
 
-            if (newX >= 0 && newX < map.length && newY >= 0 && newY < map[0].length && (String.valueOf(map[newX][newY]).equals(Symbol.EMPTY))){
+            if (newX >= 0 && newX < map.length &&
+                    newY >= 0 && newY < map[0].length &&
+                    String.valueOf(map[newX][newY]).equals(Symbol.EMPTY)){
                 availableSpots.add(new Coordinate(newX, newY));
             }
         }

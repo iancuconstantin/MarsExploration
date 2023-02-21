@@ -12,6 +12,7 @@ public class Rover {
     private Routine state;
     private List<Coordinate> trackRecord;
     private Map<Coordinate, String> sightings;
+    private int currentTrackRecordIndex = 0;
 
     public Rover(int id, Coordinate coordinate, int sight, Routine state,
                  List<Coordinate> trackRecord, Map<Coordinate, String> sightings) {
@@ -71,4 +72,15 @@ public class Rover {
         this.sightings = sightings;
     }
 
+    public void moveForward(Coordinate newPsn){
+        setCoordinate(newPsn);
+        trackRecord.add(newPsn);
+        currentTrackRecordIndex++;
+    }
+
+    public void moveBack(){
+        Coordinate goBackPsn = trackRecord.get(currentTrackRecordIndex);
+        setCoordinate(goBackPsn);
+        currentTrackRecordIndex--;
+    }
 }
