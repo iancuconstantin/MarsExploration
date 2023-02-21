@@ -20,8 +20,8 @@ public class ExploringRoutine implements Routine{
 
         List<Coordinate> availableSpots = getAvailableNeighborSpots(roverPsn, map);
         Coordinate newPsn = availableSpots.get(rand.nextInt(availableSpots.size()));
+        //TODO - implement below in new rover method moveToNewPsn
         rover.setCoordinate(newPsn);
-
         List<Coordinate> previousPsns = rover.getTrackRecord();
         previousPsns.add(newPsn);
         rover.setTrackRecord(previousPsns);
