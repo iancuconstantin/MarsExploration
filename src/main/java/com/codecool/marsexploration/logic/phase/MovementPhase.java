@@ -8,6 +8,6 @@ public class MovementPhase implements Phase{
     @Override
     public void perform(Context context) {
         Rover rover = context.rover();
-        rover.state().move(context);
+        rover.getState().move(context);
     }
 }
