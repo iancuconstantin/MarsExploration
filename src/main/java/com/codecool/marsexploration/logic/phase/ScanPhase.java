@@ -7,25 +7,47 @@ import com.codecool.marsexploration.data.Symbol;
 
 import java.util.Arrays;
 
-public class ScanPhase implements Phase{
+public class ScanPhase implements Phase {
+
+    private static final int MIN_INDEX = 0;
 
     @Override
     public void perform(Context context) {
-        Rover rover = context.getRover();
-        int sight = context.getRover().getSight();
-        Character[][] map = context.getMap();
-        Coordinate roverPsn = context.getRover().getCoordinate();
-        int maxX = Math.min((roverPsn.x() + sight), map.length);
-        int minX = Math.max((roverPsn.x() - sight), 0);
-        int maxY = Math.min((roverPsn.y() + sight), map.length);
-        int minY = Math.min((roverPsn.y() - sight), 0);
-        for (int i = minX; i < maxX; i++ ){
-            for (int j = minY; j < maxY; j++){
-                String currentSymbol = map[i][j].toString();
-                if (Arrays.stream(Symbol.values()).anyMatch(s-> s.getSymbol().equals(currentSymbol))){
-                    rover.getSightings().put(new Coordinate(i, j), currentSymbol);
+        Coordinate[] sightBounds = getSightBounds(context);
+
+        for (int i = sightBounds[0].x(); i < sightBounds[0].y(); i++) {
+            for (int j = sightBounds[1].x(); j < sightBounds[1].y(); j++) {
+                Coordinate currentCoordinate = new Coordinate(i, j);
+                if (isSymbolInSight(currentCoordinate, context)) {
+                    addSighting(currentCoordinate,context);
                 }
             }
         }
+    }
+
+    private Coordinate[] getSightBounds(Context context) {
+        Coordinate roverPsn = context.getRover().getCoordinate();
+        int sight = context.getRover().getSight();
+
+        int maxX = Math.min((roverPsn.x() + sight), context.getMap().length - 1);
+        int minX = Math.max((roverPsn.x() - sight), MIN_INDEX);
+        int maxY = Math.min((roverPsn.y() + sight), context.getMap()[0].length - 1);
+        int minY = Math.max((roverPsn.y() - sight), MIN_INDEX);
+
+        return new Coordinate[]{new Coordinate(minX, minY), new Coordinate(maxX, maxY)};
+    }
+
+    private boolean isSymbolInSight(Coordinate coordinate, Context context) {
+        Character[][] map = context.getMap();
+        String currentSymbol = map[coordinate.x()][coordinate.y()].toString();
+        return Arrays.stream(Symbol.values())
+                .anyMatch(symbol -> symbol.getSymbol().equals(currentSymbol));
+    }
+
+    private void addSighting(Coordinate coordinate, Context context) {
+        Rover rover = context.getRover();
+        Character[][] map = context.getMap();
+        String currentSymbol = map[coordinate.x()][coordinate.y()].toString();
+        rover.getSightings().put(coordinate, currentSymbol);
     }
 }
