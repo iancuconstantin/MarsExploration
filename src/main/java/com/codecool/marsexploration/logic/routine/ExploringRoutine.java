@@ -19,7 +19,12 @@ public class ExploringRoutine implements Routine{
         Random rand = new Random();
 
         List<Coordinate> availableSpots = getAvailableNeighborSpots(roverPsn, map);
-        rover.setCoordinate(availableSpots.get(rand.nextInt(availableSpots.size())));
+        Coordinate newPsn = availableSpots.get(rand.nextInt(availableSpots.size()));
+        rover.setCoordinate(newPsn);
+
+        List<Coordinate> previousPsns = rover.getTrackRecord();
+        previousPsns.add(newPsn);
+        rover.setTrackRecord(previousPsns);
     }
 
     private List<Coordinate> getAvailableNeighborSpots(Coordinate roverPsn, Character[][] map){
