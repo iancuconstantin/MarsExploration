@@ -26,12 +26,11 @@ public class ExplorationSimulator {
             for(Phase phase:phases){
                 phase.perform(context);
             }
-            if(context.getOutcome() != null){
-                context.getRover().setState(new ReturningRoutine());
-            }
-            while (context.getRover().getCoordinate()!=context.getLanding()){
-                phases.get(0).perform(context);
-            }
+        }
+
+        context.getRover().setState(new ReturningRoutine());
+        while (context.getRover().getCoordinate() != context.getLanding()){
+            context.getRover().getState().move(context);
         }
     }
 
