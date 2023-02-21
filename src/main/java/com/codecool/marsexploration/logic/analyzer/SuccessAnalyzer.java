@@ -9,6 +9,7 @@ public class SuccessAnalyzer implements Analyzer{
 
     @Override
     public Optional<Outcome> analyze(Context context) {
+        context.getRover().getSightings();
         return Optional.empty();
     }
 }
