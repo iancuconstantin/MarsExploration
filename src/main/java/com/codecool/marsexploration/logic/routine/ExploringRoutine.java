@@ -13,9 +13,9 @@ public class ExploringRoutine implements Routine{
 
     @Override
     public void move(Context context) {
-        Rover rover = context.rover();
+        Rover rover = context.getRover();
         Coordinate roverPsn = rover.getCoordinate();
-        Character[][] map = context.map();
+        Character[][] map = context.getMap();
         Random rand = new Random();
 
         List<Coordinate> availableSpots = getAvailableNeighborSpots(roverPsn, map);
