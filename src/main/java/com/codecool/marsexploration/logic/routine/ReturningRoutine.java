@@ -12,8 +12,8 @@ public class ReturningRoutine implements Routine{
     public void move(Context context) {
         List<Coordinate> pastCoordinates = context.getRover().getTrackRecord();
         Rover rover = context.getRover();
-        for (int i = pastCoordinates.size() - 1; i >= 0; i--){
-            rover.setCoordinate(pastCoordinates.get(i));
-        }
+        Coordinate goBackPsn = pastCoordinates.get(pastCoordinates.size()-1);
+        pastCoordinates.remove(pastCoordinates.size()-1);
+        rover.setCoordinate(goBackPsn);
     }
 }
