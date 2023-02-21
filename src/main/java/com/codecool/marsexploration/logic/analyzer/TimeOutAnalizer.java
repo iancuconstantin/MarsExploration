@@ -13,8 +13,8 @@ public class TimeOutAnalizer implements Analyzer{
         long timeOut = context.getTimeout();
 
         if(currentStep == timeOut) {
-            context.setOutcome(Optional.of(Outcome.TIMEOUT));
-            return context.getOutcome();
+            //context.setOutcome(Optional.of(Outcome.TIMEOUT));
+            return Optional.of(Outcome.TIMEOUT);
         }
         return Optional.empty();
     }

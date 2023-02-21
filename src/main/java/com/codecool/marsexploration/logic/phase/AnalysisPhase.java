@@ -16,8 +16,9 @@ public class AnalysisPhase implements Phase{
     @Override
     public void perform(Context context) {
         //call analyzer.analyze method here
-        for(Analyzer analyzer : analyzers){
-            analyzer.analyze(context);
+        for (int i = 0; i < analyzers.size()&&context.getOutcome().isEmpty(); i++) {
+            Analyzer analyzer = analyzers.get(i);
+            context.setOutcome(analyzer.analyze(context));
         }
     }
 }
