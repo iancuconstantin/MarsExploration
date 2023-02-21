@@ -23,7 +23,7 @@ public class ScanPhase implements Phase{
             for (int j = minY; j < maxY; j++){
                 String currentSymbol = map[i][j].toString();
                 if (Arrays.stream(Symbol.values()).anyMatch(s-> s.getSymbol().equals(currentSymbol))){
-                    rover.sightings().put(new Coordinate(i, j), currentSymbol);
+                    rover.getSightings().put(new Coordinate(i, j), currentSymbol);
                 }
             }
         }
