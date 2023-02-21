@@ -1,7 +1,6 @@
 package com.codecool.marsexploration;
 
-import com.codecool.marsexploration.data.Coordinate;
-import com.codecool.marsexploration.data.SimulationInput;
+import com.codecool.marsexploration.data.*;
 import com.codecool.marsexploration.logic.ExplorationSimulator;
 
 public class Application {

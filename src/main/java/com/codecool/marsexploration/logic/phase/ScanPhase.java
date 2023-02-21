@@ -11,10 +11,10 @@ public class ScanPhase implements Phase{
 
     @Override
     public void perform(Context context) {
-        Rover rover = context.rover();
-        int sight = context.rover().sight();
-        Character[][] map = context.map();
-        Coordinate roverPsn = context.rover().coordinate();
+        Rover rover = context.getRover();
+        int sight = context.getRover().sight();
+        Character[][] map = context.getMap();
+        Coordinate roverPsn = context.getRover().coordinate();
         int maxX = Math.min((roverPsn.x() + sight), map.length);
         int minX = Math.max((roverPsn.x() - sight), 0);
         int maxY = Math.min((roverPsn.y() + sight), map.length);
