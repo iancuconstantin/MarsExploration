@@ -8,6 +8,7 @@ public class StepIncrementPhase implements Phase{
     @Override
     public void perform(Context context) {
         currentStepNumber = context.getStepNumber();
-        context.setStepNumber(currentStepNumber++);
+        currentStepNumber++;
+        context.setStepNumber(currentStepNumber);
     }
 }
