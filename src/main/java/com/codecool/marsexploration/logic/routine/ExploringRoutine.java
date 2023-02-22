@@ -20,7 +20,14 @@ public class ExploringRoutine implements Routine{
 
         List<Coordinate> availableSpots = getEmptyNeighborSpots(roverPsn, map);
         List<Coordinate> neverVisitedSpots = getNeverVisitedSpots(availableSpots, rover);
-        Coordinate newPsn = availableSpots.get(rand.nextInt(neverVisitedSpots.size()));
+
+        Coordinate newPsn;
+        if (neverVisitedSpots.isEmpty()){
+            newPsn = availableSpots.get(rand.nextInt(availableSpots.size()));
+        }else{
+            newPsn = availableSpots.get(rand.nextInt(neverVisitedSpots.size()));
+        }
+
         rover.moveForward(newPsn);
     }
 
