@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public class LackOfResourcesAnalyzer implements Analyzer {
 
-    private static final int MINERAL_THRESHOLD = 2;
-    private static final int WATER_THRESHOLD = 2;
+    private static final int MINERAL_THRESHOLD = 1;
+    private static final int WATER_THRESHOLD = 1;
     private static final int MAX_ITERATIONS_WITHOUT_RESOURCES = 50;
 
     @Override
@@ -27,7 +27,7 @@ public class LackOfResourcesAnalyzer implements Analyzer {
             else if (entry.getValue().equals(Symbol.WATER.getSymbol()))
                 waterCount++;
 
-            if (mineralsCount >= MINERAL_THRESHOLD && waterCount >= WATER_THRESHOLD){
+            if (mineralsCount >= MINERAL_THRESHOLD || waterCount >= WATER_THRESHOLD){
                 iterationsWithoutMinResources = 0;
             }else{
                 iterationsWithoutMinResources++;
