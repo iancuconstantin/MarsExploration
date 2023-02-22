@@ -19,8 +19,20 @@ public class ExploringRoutine implements Routine{
         Random rand = new Random();
 
         List<Coordinate> availableSpots = getEmptyNeighborSpots(roverPsn, map);
-        Coordinate newPsn = availableSpots.get(rand.nextInt(availableSpots.size()));
+        List<Coordinate> neverVisitedSpots = getNeverVisitedSpots(availableSpots, rover);
+        Coordinate newPsn = availableSpots.get(rand.nextInt(neverVisitedSpots.size()));
         rover.moveForward(newPsn);
+    }
+
+    private List<Coordinate> getNeverVisitedSpots(List<Coordinate> availableSpots, Rover rover) {
+        List<Coordinate> neverVisitedSpots = new ArrayList<>();
+        for(Coordinate c : availableSpots){
+            boolean hasVisited = rover.getTrackRecord().stream().anyMatch(coordinate -> coordinate.x() == c.x() && coordinate.y() == c.y());
+            if (!hasVisited){
+                neverVisitedSpots.add(c);
+            }
+        }
+        return neverVisitedSpots;
     }
 
     private List<Coordinate> getEmptyNeighborSpots(Coordinate roverPsn, Character[][] map){
@@ -31,10 +43,9 @@ public class ExploringRoutine implements Routine{
         for (int i = 0; i < 8; i++){
             int newX = roverPsn.x() + dx[i];
             int newY = roverPsn.y() + dy[i];
-
             if (newX >= 0 && newX < map.length &&
-                    newY >= 0 && newY < map[0].length &&
-                    String.valueOf(map[newX][newY]).equals(Symbol.EMPTY)){
+                    newY >= 0 && newY < map.length &&
+                    Character.toString(map[newX][newY]).equals(Symbol.EMPTY.getSymbol())){
                 availableSpots.add(new Coordinate(newX, newY));
             }
         }
