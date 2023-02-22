@@ -22,14 +22,14 @@ public class ExplorationSimulator {
 
     public void simulate(SimulationInput input) {
         Context context = process(input);
-        while (context.getOutcome() == null){
+        while (context.getOutcome().isEmpty()){
             for(Phase phase:phases){
                 phase.perform(context);
             }
         }
 
         context.getRover().setState(new ReturningRoutine());
-        while (context.getRover().getCoordinate() != context.getLanding()){
+        while (context.getRover().getCoordinate().equals(context.getLanding())){
             context.getRover().getState().move(context);
         }
     }

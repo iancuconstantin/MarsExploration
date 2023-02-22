@@ -9,7 +9,7 @@ public class Context {
     private Coordinate landing;
     private Rover rover;
     private String logPath;
-    private Optional<Outcome> outcome;
+    private Optional<Outcome> outcome = Optional.empty();
 
     public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Rover rover, String logPath) {
         this.stepNumber = stepNumber;
