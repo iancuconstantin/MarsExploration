@@ -79,8 +79,9 @@ public class Rover {
     }
 
     public void moveBack(){
+        currentTrackRecordIndex--;
         Coordinate goBackPsn = trackRecord.get(currentTrackRecordIndex);
         setCoordinate(goBackPsn);
-        currentTrackRecordIndex--;
+
     }
 }
