@@ -15,8 +15,8 @@ public class ScanPhase implements Phase {
     public void perform(Context context) {
         Coordinate[] sightBounds = getSightBounds(context);
 
-        for (int i = sightBounds[0].x(); i < sightBounds[0].y(); i++) {
-            for (int j = sightBounds[1].x(); j < sightBounds[1].y(); j++) {
+        for (int i = sightBounds[0].x(); i < sightBounds[1].x(); i++) {
+            for (int j = sightBounds[0].y(); j < sightBounds[1].y(); j++) {
                 Coordinate currentCoordinate = new Coordinate(i, j);
                 if (isSymbolInSight(currentCoordinate, context)) {
                     addSighting(currentCoordinate,context);
