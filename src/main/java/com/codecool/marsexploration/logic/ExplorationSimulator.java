@@ -1,13 +1,12 @@
 package com.codecool.marsexploration.logic;
 
-import com.codecool.marsexploration.data.Context;
-import com.codecool.marsexploration.data.Coordinate;
-import com.codecool.marsexploration.data.Rover;
-import com.codecool.marsexploration.data.SimulationInput;
+import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.logic.phase.LogPhase;
 import com.codecool.marsexploration.logic.phase.Phase;
 import com.codecool.marsexploration.logic.routine.ExploringRoutine;
 import com.codecool.marsexploration.logic.routine.ReturningRoutine;
 import com.codecool.marsexploration.logic.routine.Routine;
+import com.codecool.marsexploration.utils.LogSaver;
 import com.codecool.marsexploration.utils.ReadFile;
 
 import java.util.*;
@@ -20,19 +19,34 @@ public class ExplorationSimulator {
     }
 
 
-    public void simulate(SimulationInput input) {
-        Context context = process(input);
-        while (context.getOutcome().isEmpty()){
-            for(Phase phase:phases){
-                phase.perform(context);
+        public void simulate(SimulationInput input) {
+            Context context = process(input);
+
+            //print step 0. base info (landing state);
+            Phase logPhase = new LogPhase(new LogSaver());
+            logPhase.perform(context);
+
+            // Check landing coordinates
+            Optional<Outcome> landingOutcome = checkLandingCoordinates(context);
+            context.setStepNumber(context.getStepNumber() + 1);
+            if (landingOutcome.isPresent()) {
+                context.setOutcome(landingOutcome);
+                logPhase.perform(context);
+                return;
+            }
+
+
+            while (context.getOutcome().isEmpty()){
+                for(Phase phase:phases){
+                    phase.perform(context);
+                }
+            }
+
+            context.getRover().setState(new ReturningRoutine());
+            while (context.getRover().getCoordinate().equals(context.getLanding())){
+                context.getRover().getState().move(context);
             }
         }
-
-        context.getRover().setState(new ReturningRoutine());
-        while (context.getRover().getCoordinate().equals(context.getLanding())){
-            context.getRover().getState().move(context);
-        }
-    }
 
     private Context process(SimulationInput input) {
         List<Coordinate> trackRecord = new ArrayList<>();
@@ -56,5 +70,19 @@ public class ExplorationSimulator {
             }
         }
         return map;
+    }
+
+    private Optional<Outcome> checkLandingCoordinates(Context context) {
+        Character[][] map = context.getMap();
+        int x = context.getLanding().x();
+        int y = context.getLanding().y();
+        Character symbolAtLandingCoordinates = map[x][y];
+
+        if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
+                || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
+            return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
+        }
+
+        return Optional.empty();
     }
 }
