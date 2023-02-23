@@ -5,6 +5,7 @@ import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Outcome;
 import com.codecool.marsexploration.data.Symbol;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +14,7 @@ public class LackOfResourcesAnalyzer implements Analyzer {
 
     private static final int MINERAL_THRESHOLD = 1;
     private static final int WATER_THRESHOLD = 1;
-    private List<Coordinate> trackedSightings;
+    private List<Coordinate> trackedSightings = new ArrayList<>();
     private int MAX_ITERATIONS_WITHOUT_RESOURCES;
     private int iterationsWithoutResources;
 
@@ -35,12 +36,13 @@ public class LackOfResourcesAnalyzer implements Analyzer {
                 trackedSightings.add(entry.getKey());
             }
 
-            if (mineralsCount >= MINERAL_THRESHOLD && waterCount >= WATER_THRESHOLD){
-                iterationsWithoutResources = 0;
-            }
         }
 
-        iterationsWithoutResources++;
+        if (mineralsCount >= MINERAL_THRESHOLD && waterCount >= WATER_THRESHOLD){
+            iterationsWithoutResources = 0;
+        }else{
+            iterationsWithoutResources++;
+        }
 
         if (iterationsWithoutResources >= MAX_ITERATIONS_WITHOUT_RESOURCES){
             return Optional.of(Outcome.NOT_COLONIZABLE_RESOURCES);
