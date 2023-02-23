@@ -8,7 +8,7 @@ import com.codecool.marsexploration.data.Symbol;
 import java.util.Map;
 import java.util.Optional;
 
-public class AlienSpotterAnalizer implements Analyzer{
+public class AlienSpotterAnalyzer implements Analyzer{
 
     @Override
     public Optional<Outcome> analyze(Context context) {
