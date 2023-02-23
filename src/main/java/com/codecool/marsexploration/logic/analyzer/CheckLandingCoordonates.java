@@ -14,7 +14,13 @@ public class CheckLandingCoordonates implements Analyzer {
         Character[][] map = context.getMap();
         int x = context.getLanding().x();
         int y = context.getLanding().y();
-        Character symbolAtLandingCoordinates = map[x][y];
+
+        Character symbolAtLandingCoordinates;
+        try{
+            symbolAtLandingCoordinates = map[x][y];
+        }catch(IndexOutOfBoundsException e){
+            return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
+        }
 
         if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
                 || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
