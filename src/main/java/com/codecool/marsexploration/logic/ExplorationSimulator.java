@@ -1,6 +1,7 @@
 package com.codecool.marsexploration.logic;
 
 import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.logic.analyzer.CheckLandingCoordonates;
 import com.codecool.marsexploration.logic.phase.LogPhase;
 import com.codecool.marsexploration.logic.phase.Phase;
 import com.codecool.marsexploration.logic.routine.ExploringRoutine;
@@ -24,17 +25,27 @@ public class ExplorationSimulator {
 
             //print step 0. base info (landing state);
             Phase logPhase = new LogPhase(new LogSaver());
-            logPhase.perform(context);
+//            logPhase.perform(context);
 
             // Check landing coordinates
-            Optional<Outcome> landingOutcome = checkLandingCoordinates(context);
-            context.setStepNumber(context.getStepNumber() + 1);
-            if (landingOutcome.isPresent()) {
-                context.setOutcome(landingOutcome);
+//            Optional<Outcome> landingOutcome = checkLandingCoordinates(context);
+//            context.setStepNumber(context.getStepNumber() + 1);
+            CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
+
+            if(checkLandingCoordonates.analyze(context).isPresent()){
+                context.setOutcome(checkLandingCoordonates.analyze(context));
                 logPhase.perform(context);
                 return;
             }
-
+//            if (landingOutcome.isPresent()) {
+//                context.setOutcome(landingOutcome);
+//                logPhase.perform(context);
+//                return;
+//            }
+//            if(context.getOutcome().isPresent()){
+//                logPhase.perform(context);
+//                return;
+//            }
 
             while (context.getOutcome().isEmpty()){
                 for(Phase phase:phases){
@@ -43,7 +54,7 @@ public class ExplorationSimulator {
             }
 
             context.getRover().setState(new ReturningRoutine());
-            while (context.getRover().getCoordinate().equals(context.getLanding())){
+            while (!context.getRover().getCoordinate().equals(context.getLanding())){
                 context.getRover().getState().move(context);
             }
         }
@@ -72,17 +83,17 @@ public class ExplorationSimulator {
         return map;
     }
 
-    private Optional<Outcome> checkLandingCoordinates(Context context) {
-        Character[][] map = context.getMap();
-        int x = context.getLanding().x();
-        int y = context.getLanding().y();
-        Character symbolAtLandingCoordinates = map[x][y];
-
-        if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
-                || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
-            return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
-        }
-
-        return Optional.empty();
-    }
+//    private Optional<Outcome> checkLandingCoordinates(Context context) {
+//        Character[][] map = context.getMap();
+//        int x = context.getLanding().x();
+//        int y = context.getLanding().y();
+//        Character symbolAtLandingCoordinates = map[x][y];
+//
+//        if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
+//                || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
+//            return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
+//        }
+//
+//        return Optional.empty();
+//    }
 }
