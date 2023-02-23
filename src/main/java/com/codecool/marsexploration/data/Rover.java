@@ -22,8 +22,12 @@ public class Rover {
         this.state = state;
         this.trackRecord = trackRecord;
         this.sightings = sightings;
+        initFirstPsnInTrackRecord();
     }
 
+    private void initFirstPsnInTrackRecord(){
+        trackRecord.add(coordinate);
+    }
     public int getId() {
         return id;
     }
@@ -82,6 +86,5 @@ public class Rover {
         currentTrackRecordIndex--;
         Coordinate goBackPsn = trackRecord.get(currentTrackRecordIndex);
         setCoordinate(goBackPsn);
-
     }
 }
