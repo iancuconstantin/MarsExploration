@@ -26,11 +26,11 @@ public class LackOfResourcesAnalyzer implements Analyzer {
         int waterCount = 0;
 
         for (Map.Entry<Coordinate, String> entry : sightings.entrySet()) {
-            if (entry.getValue().equals(Symbol.MINERAL.getSymbol()) && !isSightingAcknowledged(entry.getKey())){
+            if (entry.getValue().equals(Symbol.MINERAL.getSymbol()) && isSightingUnacknowledged(entry.getKey())){
                 mineralsCount++;
                 trackedSightings.add(entry.getKey());
             }
-            else if (entry.getValue().equals(Symbol.WATER.getSymbol()) && !isSightingAcknowledged(entry.getKey())){
+            else if (entry.getValue().equals(Symbol.WATER.getSymbol()) && isSightingUnacknowledged(entry.getKey())){
                 waterCount++;
                 trackedSightings.add(entry.getKey());
             }
@@ -49,7 +49,7 @@ public class LackOfResourcesAnalyzer implements Analyzer {
         return Optional.empty();
     }
 
-    private boolean isSightingAcknowledged(Coordinate sightingToCheck){
+    private boolean isSightingUnacknowledged(Coordinate sightingToCheck){
         return trackedSightings.stream()
                 .noneMatch(sighting -> sighting.x() == sightingToCheck.x() && sighting.y() == sightingToCheck.y());
     }
