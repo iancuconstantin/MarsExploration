@@ -5,6 +5,7 @@ import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Outcome;
 import com.codecool.marsexploration.data.Symbol;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ public class LackOfResourcesAnalyzer implements Analyzer {
 
     private static final int MINERAL_THRESHOLD = 1;
     private static final int WATER_THRESHOLD = 1;
+    private List<Coordinate> trackedSightings;
     private int MAX_ITERATIONS_WITHOUT_RESOURCES;
     private int iterationsWithoutResources;
 
@@ -24,10 +26,14 @@ public class LackOfResourcesAnalyzer implements Analyzer {
         int waterCount = 0;
 
         for (Map.Entry<Coordinate, String> entry : sightings.entrySet()) {
-            if (entry.getValue().equals(Symbol.MINERAL.getSymbol()))
+            if (entry.getValue().equals(Symbol.MINERAL.getSymbol()) && !isSightingAcknowledged(entry.getKey())){
                 mineralsCount++;
-            else if (entry.getValue().equals(Symbol.WATER.getSymbol()))
+                trackedSightings.add(entry.getKey());
+            }
+            else if (entry.getValue().equals(Symbol.WATER.getSymbol()) && !isSightingAcknowledged(entry.getKey())){
                 waterCount++;
+                trackedSightings.add(entry.getKey());
+            }
 
             if (mineralsCount >= MINERAL_THRESHOLD && waterCount >= WATER_THRESHOLD){
                 iterationsWithoutResources = 0;
@@ -41,6 +47,11 @@ public class LackOfResourcesAnalyzer implements Analyzer {
         }
 
         return Optional.empty();
+    }
+
+    private boolean isSightingAcknowledged(Coordinate sightingToCheck){
+        return trackedSightings.stream()
+                .noneMatch(sighting -> sighting.x() == sightingToCheck.x() && sighting.y() == sightingToCheck.y());
     }
 
     private void setIterationsLimit(Context context) {
