@@ -19,51 +19,40 @@ public class ExplorationSimulator {
         this.phases = phases;
     }
 
+    public void simulate(SimulationInput input) {
+        Context context = process(input);
+        Phase logPhase = new LogPhase(new LogSaver());
+        boolean isLandingSpotLogged = false;
 
-        public void simulate(SimulationInput input) {
-            Context context = process(input);
+        CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
+        if(checkLandingCoordonates.analyze(context).isPresent()){
+            context.setOutcome(checkLandingCoordonates.analyze(context));
+            logPhase.perform(context);
+            return;
+        }
 
-            //print step 0. base info (landing state);
-            Phase logPhase = new LogPhase(new LogSaver());
-//            logPhase.perform(context);
-
-            // Check landing coordinates
-//            Optional<Outcome> landingOutcome = checkLandingCoordinates(context);
-//            context.setStepNumber(context.getStepNumber() + 1);
-            CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
-
-            if(checkLandingCoordonates.analyze(context).isPresent()){
-                context.setOutcome(checkLandingCoordonates.analyze(context));
+        while (context.getOutcome().isEmpty()){
+            if (!isLandingSpotLogged){
                 logPhase.perform(context);
-                return;
+                context.setStepNumber(context.getStepNumber() + 1);
+                isLandingSpotLogged = true;
             }
-//            if (landingOutcome.isPresent()) {
-//                context.setOutcome(landingOutcome);
-//                logPhase.perform(context);
-//                return;
-//            }
-//            if(context.getOutcome().isPresent()){
-//                logPhase.perform(context);
-//                return;
-//            }
-
-            while (context.getOutcome().isEmpty()){
-                for(Phase phase:phases){
-                    phase.perform(context);
-                }
-            }
-
-            context.getRover().setState(new ReturningRoutine());
-            while (!context.getRover().getCoordinate().equals(context.getLanding())){
-                context.getRover().getState().move(context);
+            for(Phase phase:phases){
+                phase.perform(context);
             }
         }
+
+        context.getRover().setState(new ReturningRoutine());
+        while (!context.getRover().getCoordinate().equals(context.getLanding())){
+            context.getRover().getState().move(context);
+        }
+    }
 
     private Context process(SimulationInput input) {
         List<Coordinate> trackRecord = new ArrayList<>();
         Map<Coordinate,String> sightings = new HashMap<>();
         Routine state = new ExploringRoutine();
-        Rover rover = new Rover(42,input.landing(),10,state,trackRecord,sightings);
+        Rover rover = new Rover(42,input.landing(),5,state,trackRecord,sightings);
         return new Context(0,100,getMap(input.mapPath()),input.landing(),rover,input.logPath());
     }
 
@@ -82,18 +71,4 @@ public class ExplorationSimulator {
         }
         return map;
     }
-
-//    private Optional<Outcome> checkLandingCoordinates(Context context) {
-//        Character[][] map = context.getMap();
-//        int x = context.getLanding().x();
-//        int y = context.getLanding().y();
-//        Character symbolAtLandingCoordinates = map[x][y];
-//
-//        if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
-//                || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
-//            return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
-//        }
-//
-//        return Optional.empty();
-//    }
 }
