@@ -12,7 +12,7 @@ public class LogSaver {
         //STEP 6; EVENT position; UNIT rover-1; POSITION [21,22]
         String content = "STEP-" + context.getStepNumber() + "; EVENT position; UNIT ROVER-" + context.getRover().getId() + "; POSITION [" + context.getRover().getCoordinate().x() + "," +context.getRover().getCoordinate().y() + "]";
         if (context.getOutcome().isPresent()) {
-            content += "\nEVENT outcome; OUTCOME " + context.getOutcome();
+            content += "\nEVENT outcome; OUTCOME " + context.getOutcome().get().getStatusMessage();
         }
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(context.getLogPath(), true))){
             bw.append(content);
