@@ -13,7 +13,7 @@ import com.codecool.marsexploration.utils.ReadFile;
 
 import java.util.*;
 
-public class ExplorationSimulator {
+public class ExplorationSimulator{
     private List<Phase> phases;
 
     public ExplorationSimulator(List<Phase> phases) {

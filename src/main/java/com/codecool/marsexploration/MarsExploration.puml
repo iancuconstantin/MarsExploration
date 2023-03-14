@@ -1,0 +1,142 @@
+@startuml
+
+class CommandCentre {
+-REQUIRED_MINERALS_FOR_NEW_ROVER: int
+-location: Coordinate
+- id: UUID
+-sight: int
+-rovers: Map<Rover, Coordinate>
+-resourcesInSight: List<Coordinate>
+-quantityStored: Map<Symbol, Integer>
+}
+
+class Context{
+- stepNumber: Integer
+-timeout: long
+-map: Character[][]
+-landing: Coordinate
+-rover: Rover
+-logPath: String
+-outcome: Optional<Outcome> = Optional.empty()
+-commandCentres: List<CommandCentre>
+}
+
+class Coordinate{
++x: int
++y: int
+}
+
+enum Outcome{
+    COLONIZABLE("COLONIZABLE"),
+    NOT_COLONIZABLE_RESOURCES("NOT_COLONIZABLE_RESOURCES"),
+    NOT_COLONIZABLE_ALIENS("NOT_COLONIZABLE_ALIENS"),
+    TIMEOUT("TIMEOUT"),
+    WRONG_LANDING_COORDINATES("WRONG_LANDING_COORDINATES");
+    -statusMessage: String
+}
+
+class Rover{
+-id: UUID
+-coordinate: Coordinate
+-sight: int
+-state: Routine
+-trackRecord: List<Coordinate>
+-sightings: Map<Coordinate, String>
+-currentTrackRecordIndex = 0: int
+-isColonizer: boolean
+}
+
+class SimulationInput{
++mapPath: String
++landing: Coordinate
++timeout: long
++logPath: String
+}
+
+enum Symbol{
+     EMPTY(" "),
+        MOUNTAIN("^"),
+        PIT("#"),
+        MINERAL("*"),
+        WATER("~"),
+        ALIEN("A"),
+        COMMAND_CENTRE("C");
+    -Symbol: String
+}
+
+interface Analyzer{
++analyze(context: Context) : Optional<Outcome>
+}
+
+class AlienSpotterAnalyzer implements Analyzer{
+}
+
+class CheckLandingCoordonates implements Analyzer{
+}
+
+class LackOfResourcesAnalyzer implements Analyzer{
+-MINERAL_THRESHOLD=1: Integer
+-WATER_THRESHOLD=1: Integer
+-trackedSightings=new HashMap<>(): Map<Coordinate,String>
+-MAX_ITERATIONS_WITHOUT_RESOURCES: Integer
+-iterationsWithoutResources: Integer
+}
+
+class SuccessAnalyzer implements Analyzer{
+-RESOURCES_REQUIRED_FOR_COLONIZATION = 10: Integer
+}
+
+class TimeOutAnalizer implements Analyzer{
+}
+
+interface Phase{
++perform(context: Context) : void
+}
+
+class AnalysisPhase implements Phase{
+-analyzers: List<Analyzer>
+}
+
+class LogPhase implements Phase{
+-writer: LogSaver
+}
+
+class MovementPhase implements Phase{
+}
+
+class ScanPhase implements Phase{
+-MIN_INDEX = 0: Integer
+}
+
+class StepIncrementPhase implements Phase{
+-currentStepNumber: Integer
+}
+
+interface Routine{
+}
+
+class BuildingRoutine implements Routine{
+}
+
+class ExploringRoutine implements Routine{
+}
+
+class GatherRoutine implements Routine{
+}
+
+class ReturningRoutine implements Routine{
+}
+
+class ExplorationSimulator{
+-phases: List<Phase>
+}
+
+class LogSaver{
++void logStep(context: Context)
+}
+
+class ReadFile{
++String readFile(filePath: String)
+}
+
+@enduml
