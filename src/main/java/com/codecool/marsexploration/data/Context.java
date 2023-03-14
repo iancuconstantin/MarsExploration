@@ -1,5 +1,7 @@
 package com.codecool.marsexploration.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class Context {
@@ -10,6 +12,7 @@ public class Context {
     private Rover rover;
     private String logPath;
     private Optional<Outcome> outcome = Optional.empty();
+    private List<CommandCentre> commandCentres;
 
     public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Rover rover, String logPath) {
         this.stepNumber = stepNumber;
@@ -18,6 +21,15 @@ public class Context {
         this.landing = landing;
         this.rover = rover;
         this.logPath = logPath;
+        this.commandCentres = new ArrayList<>();
+    }
+
+    public List<CommandCentre> getCommandCentres() {
+        return commandCentres;
+    }
+
+    public void addCommandCenter(CommandCentre commandCentre) {
+        commandCentres.add(commandCentre);
     }
 
     public Integer getStepNumber() {

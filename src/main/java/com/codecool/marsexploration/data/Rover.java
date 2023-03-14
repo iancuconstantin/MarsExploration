@@ -1,39 +1,36 @@
 package com.codecool.marsexploration.data;
 
 import com.codecool.marsexploration.logic.routine.Routine;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 public class Rover {
-    private int id;
+    private UUID id;
     private Coordinate coordinate;
     private int sight;
     private Routine state;
     private List<Coordinate> trackRecord;
     private Map<Coordinate, String> sightings;
     private int currentTrackRecordIndex = 0;
+    private boolean isColonizer;
 
-    public Rover(int id, Coordinate coordinate, int sight, Routine state,
-                 List<Coordinate> trackRecord, Map<Coordinate, String> sightings) {
-        this.id = id;
+    public Rover(Coordinate coordinate, int sight, Routine state) {
+        this.id = UUID.randomUUID();
         this.coordinate = coordinate;
         this.sight = sight;
         this.state = state;
-        this.trackRecord = trackRecord;
-        this.sightings = sightings;
+        this.trackRecord = new ArrayList<>();
+        this.sightings = new HashMap<>();
+        this.isColonizer = false;
         initFirstPsnInTrackRecord();
     }
 
     private void initFirstPsnInTrackRecord(){
         trackRecord.add(coordinate);
     }
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
+    public UUID getId() {
+        return id;
     }
 
     public Coordinate getCoordinate() {
@@ -86,5 +83,60 @@ public class Rover {
         currentTrackRecordIndex--;
         Coordinate goBackPsn = trackRecord.get(currentTrackRecordIndex);
         setCoordinate(goBackPsn);
+    }
+
+    public void buildCommandCentre() {
+        //Coordinate buildingSpot = findBestBuildingSpot();
+
+        //TODO
+    }
+
+    private Coordinate findBestBuildingSpot(Context context) {
+        List<Coordinate> resourcesSpots = new ArrayList<>();
+
+        for (Map.Entry<Coordinate, String> entry : sightings.entrySet()) {
+            if (entry.getValue().equals(Symbol.MINERAL.getSymbol()) || entry.getValue().equals(Symbol.WATER.getSymbol())) {
+                resourcesSpots.add(entry.getKey());
+            }
+        }
+
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+
+        for (Coordinate c : resourcesSpots) {
+            if (c.x() < minX) minX = c.x();
+            if (c.x() > maxX) maxX = c.x();
+            if (c.y() > maxY) maxY = c.y();
+            if (c.y() < minY) minY = c.y();
+        }
+
+        Character[][] map = context.getMap();
+        int maxXAreaBound = 0;
+        int maxYAreaBound = 0;
+        int foundResources = 0;
+        for (int i = minX; i <= maxX; i++) {
+            maxXAreaBound++;
+            if (maxXAreaBound == 5) {
+                maxXAreaBound = 0;
+                i--;
+                foundResources = 0;
+                continue;
+            }
+            for (int j = minY; j <= minY; j++) {
+                maxYAreaBound++;
+                if (maxYAreaBound == 5) {
+                    maxYAreaBound = 0;
+                    j--;
+                    foundResources = 0;
+                    continue;
+                }
+                if (String.valueOf(map[i][j]).equals(Symbol.MINERAL.getSymbol()) || String.valueOf(map[i][j]).equals(Symbol.WATER.getSymbol())) {
+                    foundResources++;
+                }
+            }
+        }
+        return null;
     }
 }
