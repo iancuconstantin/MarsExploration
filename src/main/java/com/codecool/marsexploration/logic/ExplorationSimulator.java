@@ -4,6 +4,7 @@ import com.codecool.marsexploration.data.*;
 import com.codecool.marsexploration.logic.analyzer.CheckLandingCoordonates;
 import com.codecool.marsexploration.logic.phase.LogPhase;
 import com.codecool.marsexploration.logic.phase.Phase;
+import com.codecool.marsexploration.logic.routine.BuildingRoutine;
 import com.codecool.marsexploration.logic.routine.ExploringRoutine;
 import com.codecool.marsexploration.logic.routine.ReturningRoutine;
 import com.codecool.marsexploration.logic.routine.Routine;
@@ -22,7 +23,6 @@ public class ExplorationSimulator {
     public void simulate(SimulationInput input) {
         Context context = process(input);
         Phase logPhase = new LogPhase(new LogSaver());
-        boolean isLandingSpotLogged = false;
 
         CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
         if(checkLandingCoordonates.analyze(context).isPresent()){
@@ -31,28 +31,27 @@ public class ExplorationSimulator {
             return;
         }
 
+        logPhase.perform(context);
+        context.setStepNumber(context.getStepNumber() + 1);
         while (context.getOutcome().isEmpty()){
-            if (!isLandingSpotLogged){
-                logPhase.perform(context);
-                context.setStepNumber(context.getStepNumber() + 1);
-                isLandingSpotLogged = true;
-            }
             for(Phase phase:phases){
                 phase.perform(context);
             }
         }
-
-        context.getRover().setState(new ReturningRoutine());
-        while (!context.getRover().getCoordinate().equals(context.getLanding())){
-            context.getRover().getState().move(context);
+        if (context.getOutcome().equals(Outcome.COLONIZABLE)){
+            context.getRover().setState(new BuildingRoutine());
+            //TODO
+        }else{
+            context.getRover().setState(new ReturningRoutine());
+            while (!context.getRover().getCoordinate().equals(context.getLanding())){
+                context.getRover().getState().move(context);
+            }
         }
     }
 
     private Context process(SimulationInput input) {
-        List<Coordinate> trackRecord = new ArrayList<>();
-        Map<Coordinate,String> sightings = new HashMap<>();
         Routine state = new ExploringRoutine();
-        Rover rover = new Rover(42,input.landing(),5,state,trackRecord,sightings);
+        Rover rover = new Rover(input.landing(),5,state);
         return new Context(0,100,getMap(input.mapPath()),input.landing(),rover,input.logPath());
     }
 
