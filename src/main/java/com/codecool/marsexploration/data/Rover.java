@@ -13,6 +13,7 @@ public class Rover {
     private Map<Coordinate, String> sightings;
     private int currentTrackRecordIndex = 0;
     private boolean isColonizer;
+    private int resources;
 
     public Rover(Coordinate coordinate, int sight, Routine state) {
         this.id = UUID.randomUUID();
@@ -22,6 +23,7 @@ public class Rover {
         this.trackRecord = new ArrayList<>();
         this.sightings = new HashMap<>();
         this.isColonizer = false;
+        this.resources = 20;
         initFirstPsnInTrackRecord();
     }
 
@@ -87,7 +89,6 @@ public class Rover {
 
     public void buildCommandCentre() {
         //Coordinate buildingSpot = findBestBuildingSpot();
-
         //TODO
     }
 

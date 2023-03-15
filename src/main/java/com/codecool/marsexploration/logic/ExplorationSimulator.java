@@ -24,6 +24,57 @@ public class ExplorationSimulator{
         Context context = process(input);
         Phase logPhase = new LogPhase(new LogSaver());
 
+
+        //try
+//        CommandCentre commandCentre = new CommandCentre(new Coordinate(11, 13),context);
+        CommandCentre commandCentre = new CommandCentre(new Coordinate(18, 12),context);
+//        System.out.println(commandCentre.getLocation().x(),commandCentre.getLocation().y());
+        Character[][] map = context.getMap();
+
+        System.out.println("verificare locatie CC: ");
+        System.out.println(commandCentre.getLocation());
+
+
+        System.out.println("VERIFICARE getResourcesInSight");
+        for(Coordinate resource: commandCentre.getResourcesInSight()){
+            System.out.println(resource);
+            System.out.println(map[resource.x()][resource.y()].toString());
+        }
+
+        System.out.println("VERIFICARE SPOTURI LIBERE prima resursa:");
+        Coordinate resPsn = new Coordinate(commandCentre.getResourcesInSight().get(0).x(),commandCentre.getResourcesInSight().get(0).y());
+        List<Coordinate> freeSpots = commandCentre.checkFreeSpotForRover(context,resPsn);
+        for(Coordinate spot:freeSpots){
+            System.out.println(spot);
+        }
+
+        System.out.println("verificare lista rovere in cc:");
+        Random random = new Random();
+        int randomIndex = random.nextInt(freeSpots.size());
+        Coordinate randomItem = freeSpots.get(randomIndex);
+        System.out.println("VERIFICARE PICK RANDOM COORDINATE:");
+        System.out.println(randomItem.toString());
+
+        System.out.println("VERIFICARE LUNGIME LISTA ROVERE IN CC- INCEPUT: ");
+        System.out.println(commandCentre.getRovers().size());
+
+        commandCentre.createNewRover(randomItem);
+
+        System.out.println("VERIFICARE LUNGIME LISTA ROVERE IN CC- FINAL: ");
+        System.out.println(commandCentre.getRovers().size());
+        Map.Entry<Rover, Coordinate> firstEntry = commandCentre.getRovers().entrySet().iterator().next();
+        UUID firstKey = firstEntry.getKey().getId();
+        Coordinate firstValue = firstEntry.getValue();
+
+        System.out.println("First rover in the cc is: " + firstKey + " => " + firstValue);
+//        commandCentre.createNewRover(randomItem);
+//        System.out.println("VERIFICARE LISTA ROVERE IN CC: ");
+//        System.out.println(commandCentre.getRovers().keySet());
+        //end try
+
+
+
+
         CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
         if(checkLandingCoordonates.analyze(context).isPresent()){
             context.setOutcome(checkLandingCoordonates.analyze(context));

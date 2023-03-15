@@ -34,7 +34,7 @@ public class Application {
                 "src/main/resources/exploration-1.map",
                 new Coordinate(12, 12),
                 100,
-                "src/main/resources/exploration-1.log");
+                "src/main/resources/exploration-1111.log");
 
         simulator.simulate(input);
     }
