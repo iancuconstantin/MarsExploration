@@ -7,10 +7,7 @@ public class BuildingRoutine implements Routine{
 
     @Override
     public void move(Context context) {
-        while (context.getCommandCentres().isEmpty()){
-            // TODO build-CmdCntr
-            Rover rover = context.getRover();
-            rover.buildCommandCentre();
-        }
+        Rover rover = context.getRover();
+        rover.buildCommandCentre(context);
     }
 }
