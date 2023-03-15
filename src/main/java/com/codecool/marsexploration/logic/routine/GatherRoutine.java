@@ -1,4 +1,10 @@
 package com.codecool.marsexploration.logic.routine;
 
-public class GatherRoutine {
+import com.codecool.marsexploration.data.Context;
+
+public class GatherRoutine implements Routine {
+    @Override
+    public void move(Context context) {
+
+    }
 }
