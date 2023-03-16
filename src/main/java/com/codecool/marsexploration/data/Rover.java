@@ -18,6 +18,7 @@ public class Rover {
     private List<Coordinate> gatheringRoute;
     private int gatheredResources;
     private int storedResources;
+    private Coordinate buildCommandCentreSpot;
 
     public Rover(Coordinate coordinate, int sight, Routine state) {
         this.id = UUID.randomUUID();
@@ -31,6 +32,7 @@ public class Rover {
         this.gatheringRoute = null;
         this.gatheredResources = 0;
         this.storedResources = 20;
+        this.buildCommandCentreSpot = null;
     }
 
     private void initFirstPsnInTrackRecord(){
@@ -47,7 +49,7 @@ public class Rover {
 
     public int getStoredResources() { return storedResources; }
 
-    public void useResourcesForBuilding(){ storedResources -= 10; }
+    public void useResourcesForBuilding(){ storedResources -= 5; }
 
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
@@ -97,8 +99,8 @@ public class Rover {
         return gatheredResources;
     }
 
-    public void clearGatheredResources(){
-        gatheredResources = 0;
+    public Coordinate getBuildCommandCentreSpot() {
+        return buildCommandCentreSpot;
     }
 
     public void moveForward(Coordinate newPsn){
@@ -114,13 +116,14 @@ public class Rover {
     }
 
     public void buildCommandCentre(Context context) {
-
+        Coordinate buildingSpot;
         if (context.currentStepsInConstruction < context.stepsNeededForConstruction){
             context.currentStepsInConstruction++;
-            //TODO - handle resources;
+            buildingSpot = findBestBuildingSpot(context);
+            this.buildCommandCentreSpot = buildingSpot;
+            useResourcesForBuilding();
         } else {
-            Coordinate buildingSpot = findBestBuildingSpot(context);
-            CommandCentre commandCentre = new CommandCentre(buildingSpot);
+            CommandCentre commandCentre = new CommandCentre(buildCommandCentreSpot);
             context.currentStepsInConstruction = 0;
             context.getCommandCentres().add(commandCentre);
 
