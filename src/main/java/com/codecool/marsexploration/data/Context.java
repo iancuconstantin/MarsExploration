@@ -15,6 +15,9 @@ public class Context {
     private String logPath;
     private Optional<Outcome> outcome = Optional.empty();
     private List<CommandCentre> commandCentres;
+    private final int COMMAND_CENTRE_SIGHT = 5;
+    public int currentStepsInConstruction = 0;
+    public int stepsNeededForConstruction = 4;
 
     public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Rover rover, String logPath) {
         this.stepNumber = stepNumber;
@@ -28,6 +31,14 @@ public class Context {
 
     public List<CommandCentre> getCommandCentres() {
         return commandCentres;
+    }
+
+    public void incrementStepNumber(){
+        stepNumber++;
+    }
+
+    public int getCOMMAND_CENTRE_SIGHT() {
+        return COMMAND_CENTRE_SIGHT;
     }
 
     public void addCommandCenter(CommandCentre commandCentre) {
