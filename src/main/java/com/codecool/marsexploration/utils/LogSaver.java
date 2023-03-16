@@ -17,7 +17,11 @@ public class LogSaver {
                 content += "\nEVENT outcome; OUTCOME " + context.getOutcome().get().getStatusMessage();
             }
         } else {
-            content = "STEP-" + context.getStepNumber() + "; BUILDING STEP - " + context.currentStepsInConstruction + "/" + context.stepsNeededForConstruction + "; COMMAND CENTRE LOCATION - " + context.getRover().getBuildCommandCentreSpot() +"; RESOURCES USED - " +  (20 - context.getRover().getStoredResources()) + "/" + 20   + "; Progress: " + ((20 - context.getRover().getStoredResources()) * 100 / 20.0) +  "%";
+            if (!context.getRover().getRouteToBuildingSpot().isEmpty()) {
+                content = "STEP-" + context.getStepNumber() + "; EVENT position(move to building spot); UNIT ROVER-" + context.getRover().getId() + "; POSITION [" + context.getRover().getCoordinate().x() + "," +context.getRover().getCoordinate().y() + "]";
+            }else{
+                content = "STEP-" + context.getStepNumber() + "; EVENT building; UNIT ROVER- " + context.getRover().getId() +  "; Building step - " + context.currentStepsInConstruction + "/" + context.stepsNeededForConstruction + "; COMMAND CENTRE LOCATION - " + context.getRover().getBuildCommandCentreSpot() +"; RESOURCES USED - " +  (20 - context.getRover().getStoredResources()) + "/" + 20   + "; Progress: " + ((20 - context.getRover().getStoredResources()) * 100 / 20.0) +  "%";
+            }
         }
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(context.getLogPath(), true))){
