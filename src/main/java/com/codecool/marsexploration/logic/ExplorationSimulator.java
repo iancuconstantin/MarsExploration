@@ -33,14 +33,21 @@ public class ExplorationSimulator{
 
         logPhase.perform(context);
         context.setStepNumber(context.getStepNumber() + 1);
+
         while (context.getOutcome().isEmpty()){
             for(Phase phase:phases){
                 phase.perform(context);
             }
         }
-        if (context.getOutcome().equals(Outcome.COLONIZABLE)){
+
+        if (context.getOutcome().orElse(null).getStatusMessage().equals(Outcome.COLONIZABLE.getStatusMessage())){
             context.getRover().setState(new BuildingRoutine());
-            //TODO
+            int commandCentresAvailable = context.getCommandCentres().size();
+            while(context.getCommandCentres().isEmpty() || commandCentresAvailable + 1  != context.getCommandCentres().size()){
+                context.getRover().getState().move(context);
+                logPhase.perform(context);
+                context.incrementStepNumber();
+            }
         }else{
             context.getRover().setState(new ReturningRoutine());
             while (!context.getRover().getCoordinate().equals(context.getLanding())){

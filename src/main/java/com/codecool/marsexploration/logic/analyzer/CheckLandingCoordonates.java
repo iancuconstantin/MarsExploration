@@ -22,8 +22,7 @@ public class CheckLandingCoordonates implements Analyzer {
             return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
         }
 
-        if (Symbol.PIT.getSymbol().equals(symbolAtLandingCoordinates.toString())
-                || Symbol.MOUNTAIN.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
+        if (!Symbol.EMPTY.getSymbol().equals(symbolAtLandingCoordinates.toString())) {
             return Optional.of(Outcome.WRONG_LANDING_COORDINATES);
         }
 
