@@ -24,12 +24,6 @@ public class ExplorationSimulator{
         Context context = process(input);
         Phase logPhase = new LogPhase(new LogSaver());
 
-
-
-
-
-
-
         CheckLandingCoordonates checkLandingCoordonates = new CheckLandingCoordonates();
         if(checkLandingCoordonates.analyze(context).isPresent()){
             context.setOutcome(checkLandingCoordonates.analyze(context));
