@@ -3,6 +3,7 @@ package com.codecool.marsexploration.data;
 import com.codecool.marsexploration.logic.routine.ExploringRoutine;
 import com.codecool.marsexploration.logic.routine.ReturningRoutine;
 import com.codecool.marsexploration.logic.routine.Routine;
+import com.codecool.marsexploration.utils.MapUtils;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class Rover {
     private int gatheredResources;
     private int storedResources;
     private Coordinate buildCommandCentreSpot;
-
+    private List<Coordinate> routeToBuildingSpot;
 
     public Rover(Coordinate coordinate, int sight, Routine state) {
         this.id = UUID.randomUUID();
@@ -36,11 +37,18 @@ public class Rover {
         this.gatheredResources = 0;
         this.storedResources = 20;
         this.buildCommandCentreSpot = null;
+        this.routeToBuildingSpot = null;
     }
 
     private void initFirstPsnInTrackRecord(){
         trackRecord.add(coordinate);
     }
+
+    public int getCurrentTrackRecordIndex() {
+        return currentTrackRecordIndex;
+    }
+
+    public List<Coordinate> getRouteToBuildingSpot(){return routeToBuildingSpot;}
 
     public UUID getId() {
         return id;
@@ -121,17 +129,32 @@ public class Rover {
 
     public void buildCommandCentre(Context context) {
         Coordinate buildingSpot;
-        if (context.currentStepsInConstruction < context.stepsNeededForConstruction){
-            context.currentStepsInConstruction++;
+
+        if(buildCommandCentreSpot == null){
             buildingSpot = findBestBuildingSpot(context);
             this.buildCommandCentreSpot = buildingSpot;
-            useResourcesForBuilding();
-        } else {
-            CommandCentre commandCentre = new CommandCentre(buildCommandCentreSpot);
-            context.currentStepsInConstruction = 0;
-            context.getCommandCentres().add(commandCentre);
+        }
 
-            //TODO - change routine to gathering routine;
+        if(routeToBuildingSpot == null){
+            this.routeToBuildingSpot = MapUtils.getShortestRoute(context.getMap(), coordinate, buildCommandCentreSpot);
+            routeToBuildingSpot.add(buildCommandCentreSpot);
+            routeToBuildingSpot.remove(0);
+        }else{
+            if(!routeToBuildingSpot.isEmpty()) {
+                System.out.println(routeToBuildingSpot);
+                setCoordinate(routeToBuildingSpot.remove(0));
+            }
+        }
+
+        if(routeToBuildingSpot.isEmpty()){
+            if (context.currentStepsInConstruction < context.stepsNeededForConstruction) {
+                context.currentStepsInConstruction++;
+                useResourcesForBuilding();
+            }else{
+                CommandCentre commandCentre = new CommandCentre(buildCommandCentreSpot, context);
+                context.currentStepsInConstruction = 0;
+                context.getCommandCentres().add(commandCentre);
+            }
         }
     }
 
@@ -168,7 +191,18 @@ public class Rover {
                         if(currentSymbol.equals(waterSymbol) || currentSymbol.equals(mineralSymbol)){
                             foundResources++;
                             if (foundResources == 3){
-                                return new Coordinate(i, j);
+                                List<Coordinate> emptyNearbySpots = MapUtils.getEmptyNeighborSpots(new Coordinate(i,j),map);
+
+                                while (true){
+                                    List<Coordinate> nearbySpots = MapUtils.getNeighborSpots(new Coordinate(i,j), map);
+                                    for (Coordinate c : nearbySpots){
+                                        emptyNearbySpots = MapUtils.getEmptyNeighborSpots(c, map).isEmpty() ? emptyNearbySpots : MapUtils.getEmptyNeighborSpots(c, map);
+                                        if(!emptyNearbySpots.isEmpty()){
+                                            Random random = new Random();
+                                            return emptyNearbySpots.get(random.nextInt(emptyNearbySpots.size()));
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
