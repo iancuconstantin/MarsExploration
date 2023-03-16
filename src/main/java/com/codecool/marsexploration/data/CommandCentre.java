@@ -1,8 +1,7 @@
 package com.codecool.marsexploration.data;
 
-import com.codecool.marsexploration.logic.routine.ExploringRoutine;
-import com.codecool.marsexploration.logic.routine.GatherRoutine;
 
+import com.codecool.marsexploration.logic.routine.GatherRoutine;
 import java.util.*;
 
 public class CommandCentre {
@@ -12,8 +11,12 @@ public class CommandCentre {
     private final int sight;
     private Map<Rover, Coordinate> rovers;
     private List<Coordinate> resourcesInSight;
+
     private Map<Symbol, Integer> quantityStored;
-    private static final int MIN_INDEX = 0;
+
+    private int resourceManaged;
+
+    private final int REQUIRED_MINERALS_FOR_NEW_ROVER = 10;
 
     public CommandCentre(Coordinate location, Context context) {
         this.id = UUID.randomUUID();
@@ -21,7 +24,8 @@ public class CommandCentre {
         this.sight = 5;
         this.rovers = new HashMap<>();
         this.resourcesInSight = getListOfResources(context);
-        //asign a rover for each resource
+        this.quantityStored = initQuantityStored();
+        this.resourceManaged = 0;
     }
 
     public Coordinate getLocation() {
@@ -44,8 +48,24 @@ public class CommandCentre {
         return resourcesInSight;
     }
 
+    public int getResourceManaged() {
+        return resourceManaged;
+    }
 
+    public Map<Symbol, Integer> getQuantityStored() {
+        return quantityStored;
+    }
 
+    public void setQuantityStored(int newValue) {
+        quantityStored.put(Symbol.MINERAL, newValue);
+    }
+
+    private Map<Symbol,Integer> initQuantityStored(){
+        Map<Symbol, Integer> quantityStored = new HashMap<>();
+        quantityStored.put(Symbol.MINERAL,100);
+        quantityStored.put(Symbol.WATER,100);
+        return quantityStored;
+    }
     private List<Coordinate> getListOfResources(Context context){
         List<Coordinate> resourcesInSight = new ArrayList<>();
         Character[][] map = context.getMap();
@@ -71,7 +91,12 @@ public class CommandCentre {
         return freeSpots;
     }
     public void createNewRover(Coordinate coordinate){
-        Coordinate resCoordinate = new Coordinate(getResourcesInSight().get(0).x(),getResourcesInSight().get(0).y());
-        rovers.put(new Rover(coordinate,5,new GatherRoutine()),resCoordinate);
+        if(getResourceManaged() < getResourcesInSight().size()-1){
+            Coordinate resCoordinate = new Coordinate(getResourcesInSight().get(getResourceManaged()).x(),getResourcesInSight().get(getResourceManaged()).y());
+            rovers.put(new Rover(coordinate,5,new GatherRoutine()),resCoordinate);
+            resourceManaged++;
+            int newValue = quantityStored.get(Symbol.MINERAL)-REQUIRED_MINERALS_FOR_NEW_ROVER;
+            setQuantityStored(newValue);
+        }
     }
 }
