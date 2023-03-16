@@ -14,11 +14,13 @@ public class Rover {
     private List<Coordinate> trackRecord;
     private Map<Coordinate, String> sightings;
     private int currentTrackRecordIndex = 0;
+    private int resources;
     private Coordinate designatedGatheringSpot;
     private List<Coordinate> gatheringRoute;
     private int gatheredResources;
     private int storedResources;
     private Coordinate buildCommandCentreSpot;
+
 
     public Rover(Coordinate coordinate, int sight, Routine state) {
         this.id = UUID.randomUUID();
@@ -27,6 +29,7 @@ public class Rover {
         this.state = state;
         this.trackRecord = new ArrayList<>();
         this.sightings = new HashMap<>();
+        this.resources = 20;
         initFirstPsnInTrackRecord();
         this.designatedGatheringSpot = null;
         this.gatheringRoute = null;
@@ -114,6 +117,7 @@ public class Rover {
         Coordinate goBackPsn = trackRecord.get(currentTrackRecordIndex);
         setCoordinate(goBackPsn);
     }
+
 
     public void buildCommandCentre(Context context) {
         Coordinate buildingSpot;

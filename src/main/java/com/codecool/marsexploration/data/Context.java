@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Context {
+    private final int REQUIRED_MINERALS_FOR_NEW_ROVER = 10;
+    private final int REQUIRED_MINERALS_FOR_NEW_COMMAND_CENTRE = 20;
     private Integer stepNumber;
     private long timeout;
     private Character[][] map;
