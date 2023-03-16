@@ -20,7 +20,7 @@ public class ExplorationSimulator{
         this.phases = phases;
     }
 
-    public void simulate(SimulationInput input) {
+    public Context simulate(SimulationInput input) {
         Context context = process(input);
         Phase logPhase = new LogPhase(new LogSaver());
 
@@ -28,7 +28,7 @@ public class ExplorationSimulator{
         if(checkLandingCoordonates.analyze(context).isPresent()){
             context.setOutcome(checkLandingCoordonates.analyze(context));
             logPhase.perform(context);
-            return;
+            return null;
         }
 
         logPhase.perform(context);
@@ -48,12 +48,15 @@ public class ExplorationSimulator{
                 logPhase.perform(context);
                 context.incrementStepNumber();
             }
-        }else{
+
+        } else {
             context.getRover().setState(new ReturningRoutine());
             while (!context.getRover().getCoordinate().equals(context.getLanding())){
                 context.getRover().getState().move(context);
             }
         }
+
+        return context;
     }
 
     private Context process(SimulationInput input) {
