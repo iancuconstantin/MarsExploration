@@ -1,5 +1,7 @@
 package com.codecool.marsexploration.data;
 
+import com.codecool.marsexploration.data.rover.Explorer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,29 +13,31 @@ public class Context {
     private long timeout;
     private Character[][] map;
     private Coordinate landing;
-    private Rover rover;
+    private Explorer explorer;
     private String logPath;
     private Optional<Outcome> outcome = Optional.empty();
     private List<CommandCentre> commandCentres;
     private final int COMMAND_CENTRE_SIGHT = 5;
-    public int currentStepsInConstruction = 0;
-    public int stepsNeededForConstruction = 4;
 
-    public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Rover rover, String logPath) {
+    public Context(Integer stepNumber, long timeout, Character[][] map, Coordinate landing, Explorer rover, String logPath) {
         this.stepNumber = stepNumber;
         this.timeout = timeout;
         this.map = map;
         this.landing = landing;
-        this.rover = rover;
+        this.explorer = rover;
         this.logPath = logPath;
         this.commandCentres = new ArrayList<>();
+    }
+
+    public void deliverNewCommandCentre(CommandCentre commandCentre) {
+        commandCentres.add(commandCentre);
     }
 
     public List<CommandCentre> getCommandCentres() {
         return commandCentres;
     }
 
-    public void incrementStepNumber(){
+    public void incrementStepNumber() {
         stepNumber++;
     }
 
@@ -77,12 +81,12 @@ public class Context {
         this.landing = landing;
     }
 
-    public Rover getRover() {
-        return rover;
+    public Explorer getExplorer() {
+        return explorer;
     }
 
-    public void setRover(Rover rover) {
-        this.rover = rover;
+    public void setExplorer(Explorer explorer) {
+        this.explorer = explorer;
     }
 
     public String getLogPath() {

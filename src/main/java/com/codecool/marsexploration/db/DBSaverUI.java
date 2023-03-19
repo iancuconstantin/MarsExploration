@@ -26,37 +26,37 @@ public class DBSaverUI {
     }
 
     public void run(){
-        List<CommandCentre> commandCentres = context.getCommandCentres();
-
-        for(CommandCentre cmd : commandCentres){
-            commandCentreRepository.save(
-                    new DBCommandCentre(
-                            cmd.getId(),
-                            cmd.getLocation().x(),
-                            cmd.getLocation().y(),
-                            cmd.getResourcesInSight().size(),
-                            cmd.getQuantityStored().get(Symbol.MINERAL),
-                            cmd.getQuantityStored().get(Symbol.WATER)
-                    )
-            );
-            for (Map.Entry<Rover, Coordinate> entry : cmd.getRovers().entrySet()){
-                Rover rover = entry.getKey();
-                roverRepository.save(
-                        new DBRover(
-                                rover.getId(),
-                                rover.getTotalGatheredResources().get(Symbol.MINERAL),
-                                rover.getTotalGatheredResources().get(Symbol.WATER)
-                        )
-                );
-            }
-
-            constructionRepository.save(
-                    new DBConstruction(
-                            cmd.getId(),
-                            cmd.getRovers().size() * 20
-                    )
-            );
-        }
+//        List<CommandCentre> commandCentres = context.getCommandCentres();
+//
+//        for(CommandCentre cmd : commandCentres){
+//            commandCentreRepository.save(
+//                    new DBCommandCentre(
+//                            cmd.getId(),
+//                            cmd.getLocation().x(),
+//                            cmd.getLocation().y(),
+//                            cmd.getResourcesInSight().size(),
+//                            cmd.getQuantityStored().get(Symbol.MINERAL),
+//                            cmd.getQuantityStored().get(Symbol.WATER)
+//                    )
+//            );
+//            for (Map.Entry<Rover, Coordinate> entry : cmd.getRovers().entrySet()){
+//                Rover rover = entry.getKey();
+//                roverRepository.save(
+//                        new DBRover(
+//                                rover.getId(),
+//                                rover.getTotalGatheredResources().get(Symbol.MINERAL),
+//                                rover.getTotalGatheredResources().get(Symbol.WATER)
+//                        )
+//                );
+//            }
+//
+//            constructionRepository.save(
+//                    new DBConstruction(
+//                            cmd.getId(),
+//                            cmd.getRovers().size() * 20
+//                    )
+//            );
+//        }
     }
 
 
