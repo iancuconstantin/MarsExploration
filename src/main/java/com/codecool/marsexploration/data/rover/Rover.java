@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Rover {
-    private UUID id;
+    private final UUID id;
     private Coordinate currentLocation;
     private Routine state;
     private List<Coordinate> trackRecord;

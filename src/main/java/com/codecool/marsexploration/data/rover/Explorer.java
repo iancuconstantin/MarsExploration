@@ -4,6 +4,7 @@ import com.codecool.marsexploration.data.CommandCentre;
 import com.codecool.marsexploration.data.Context;
 import com.codecool.marsexploration.data.Coordinate;
 import com.codecool.marsexploration.data.Symbol;
+import com.codecool.marsexploration.logic.routine.BuildingRoutine;
 import com.codecool.marsexploration.logic.routine.Routine;
 import com.codecool.marsexploration.utils.MapUtils;
 
@@ -21,7 +22,9 @@ public class Explorer extends Rover {
     private List<Coordinate> routeToBuildingSpot;
     private Coordinate buildCommandCentreSpot;
     public int currentStepsInConstruction = 0;
-    public int STEPS_NEEDED_FOR_CONSTRUCTION = 4;
+    public final int STEPS_NEEDED_FOR_CONSTRUCTION = 4;
+    private final int DROPPED_RESOURCES_AT_EACH_STEP = 5;
+    private boolean isBuilding = false;
 
     public Explorer(Coordinate coordinate, Routine state, int sight) {
         super(coordinate, state);
@@ -32,25 +35,32 @@ public class Explorer extends Rover {
         this.routeToBuildingSpot = null;
     }
 
-    public void buildCommandCentre(Context context) {
-        if(buildCommandCentreSpot == null){
-            findAndAssignBestBuildingSpot(context);
+    public void buildOrMoveTowardsCommandCentre(Context context) {
+        if(shouldStarBuilding()){
+            proceedWithCommandCentreConstruction(context);
+        }else{
+            moveTowardsBuildingSpot();
         }
-        if (routeToBuildingSpot == null) {
-            this.routeToBuildingSpot = MapUtils.getShortestRoute(context.getMap(), getCurrentCoordinate(), buildCommandCentreSpot);
-            routeToBuildingSpot.add(buildCommandCentreSpot);
-            routeToBuildingSpot.remove(0);
-        } else {
-            if (!routeToBuildingSpot.isEmpty()) {
-                setCurrentLocation(routeToBuildingSpot.remove(0));
-            }
-        }
-        if (currentStepsInConstruction < STEPS_NEEDED_FOR_CONSTRUCTION) {
+    }
+
+    private void moveTowardsBuildingSpot() {
+        setCurrentLocation(routeToBuildingSpot.remove(0));
+    }
+
+    private boolean shouldStarBuilding() {
+        return getCurrentLocation().x() == buildCommandCentreSpot.x() &&
+                getCurrentLocation().y() == buildCommandCentreSpot.y();
+    }
+
+    private void proceedWithCommandCentreConstruction(Context context){
+        isBuilding = true;
+        if (currentStepsInConstruction != STEPS_NEEDED_FOR_CONSTRUCTION) {
             currentStepsInConstruction++;
             useResourcesForBuilding();
         } else {
             CommandCentre commandCentre = new CommandCentre(buildCommandCentreSpot, context);
             currentStepsInConstruction = 0;
+            isBuilding = false;
             context.deliverNewCommandCentre(commandCentre);
             deliverResourcesForBuildingRover(commandCentre);
         }
@@ -62,6 +72,18 @@ public class Explorer extends Rover {
         }
         storedResources.put(MINERAL, storedResources.get(MINERAL) - commandCentre.getREQUIRED_MINERALS_FOR_NEW_ROVER());
         return commandCentre.getREQUIRED_MINERALS_FOR_NEW_ROVER();
+    }
+
+    public void initRouteToBuildingSpot(Context context){
+        this.routeToBuildingSpot = MapUtils.getShortestRoute(context.getMap(), getCurrentCoordinate(), buildCommandCentreSpot);
+        routeToBuildingSpot.add(buildCommandCentreSpot);
+        routeToBuildingSpot.remove(0);
+        routeToBuildingSpot.remove(routeToBuildingSpot.size()-1);
+    }
+
+
+    public void useResourcesForBuilding() {
+        storedResources.put(MINERAL, storedResources.get(MINERAL) - DROPPED_RESOURCES_AT_EACH_STEP);
     }
 
     public void findAndAssignBestBuildingSpot(Context context) {
@@ -99,7 +121,6 @@ public class Explorer extends Rover {
                             if (foundResources == 3) {
                                 List<Coordinate> emptyNearbySpots = MapUtils.getEmptyNeighborSpots(new Coordinate(i, j), map);
                                 List<Coordinate> nearbySpots = MapUtils.getNeighborSpots(new Coordinate(i, j), map);
-                                System.out.println(nearbySpots);
                                 for (Coordinate c : nearbySpots) {
                                     emptyNearbySpots = MapUtils.getEmptyNeighborSpots(c, map).isEmpty() ? emptyNearbySpots : MapUtils.getEmptyNeighborSpots(c, map);
                                     if (!emptyNearbySpots.isEmpty()) {
@@ -115,6 +136,14 @@ public class Explorer extends Rover {
                 }
             }
         }
+    }
+
+    public boolean isOnBuildingRoutine() {
+        return getState() instanceof BuildingRoutine;
+    }
+
+    public boolean commandCentreHasBeenDeployed() {
+        return getCurrentStepsInConstruction() == getSTEPS_NEEDED_FOR_CONSTRUCTION();
     }
 
     public Map<Coordinate, String> getSightings() {
@@ -137,16 +166,20 @@ public class Explorer extends Rover {
         return STEPS_NEEDED_FOR_CONSTRUCTION;
     }
 
-    public void useResourcesForBuilding() {
-        storedResources.put(MINERAL, storedResources.get(MINERAL) - 5);
-    }
-
     public Map<Symbol, Integer> getStoredResources() {
         return storedResources;
     }
 
     public Coordinate getBuildCommandCentreSpot() {
         return buildCommandCentreSpot;
+    }
+
+    public int getDROPPED_RESOURCES_AT_EACH_STEP() {
+        return DROPPED_RESOURCES_AT_EACH_STEP;
+    }
+
+    public boolean isBuilding() {
+        return isBuilding;
     }
 
     public List<Coordinate> getRouteToBuildingSpot() {

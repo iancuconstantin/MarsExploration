@@ -16,27 +16,21 @@ public class GatherRoutine implements Routine {
     public void move(Context context) {
 
         if(!gatherer.hasGathered()){
-            if(!gatherer.getCurrentLocation().equals(
-                    gatherer.getAssignedResource().getLocation())) {
-                // cat timp nu ajunge la resource
+            if(gatherer.isAtGatheringSpot()) {
+                gatherer.gather();
+            }else{
                 int currentTrackRecordIndex = gatherer.getCurrentTrackRecordIndex();
                 Coordinate newPosition = gatherer.getPathToResource().get(currentTrackRecordIndex);
                 gatherer.moveForward(newPosition);
-            }else{
-                gatherer.gather();
             }
 
         }else{
-            if(!gatherer.getCurrentLocation().equals(gatherer.getOwnedBy().getLocation())){
-                gatherer.moveBack();
+            if(gatherer.isAtCommandCentreSpot()){
+                gatherer.dropHarvest(context);
             } else {
-                gatherer.dropHarvest();
+                gatherer.moveBack();
             }
         }
-
-        //cand a ajuns la resursa ia materiale
-        // cat timp nu a ajuns la baza
-        // move backward
     }
 
 

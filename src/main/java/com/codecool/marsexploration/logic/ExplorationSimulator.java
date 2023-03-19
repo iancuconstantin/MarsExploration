@@ -47,19 +47,24 @@ public class ExplorationSimulator{
 
         if (context.getOutcome().orElse(null).getStatusMessage().equals(Outcome.COLONIZABLE.getStatusMessage())){
             context.getExplorer().setState(new BuildingRoutine());
-            int commandCentresAvailable = context.getCommandCentres().size();
+            context.getExplorer().findAndAssignBestBuildingSpot(context);
+            context.getExplorer().initRouteToBuildingSpot(context);
+
             while(context.getCommandCentres().isEmpty()){
                     context.getExplorer().getState().move(context);
                     logPhase.perform(context);
                     context.incrementStepNumber();
             }
 
-            while(context.getCommandCentres().get(0).getResourceInventory().get(MINERAL) + context.getCommandCentres().get(0).getResourceInventory().get(WATER) != 50){
-                for (Gatherer gatherer : context.getCommandCentres().get(0).getGatherers()){
+            while(context.getCommandCentres().get(0).getGatherers().size() != context.getCommandCentres().get(0).getResourcesInSight().size()){
+                List<Gatherer> gatherersCopy = new ArrayList<>(context.getCommandCentres().get(0).getGatherers());
+                CommandCentre commandCentre = context.getCommandCentres().get(0);
+                for (Gatherer gatherer : gatherersCopy) {
                     gatherer.getState().move(context);
                     logPhase.perform(context);
                     context.incrementStepNumber();
                 }
+                commandCentre.setGatherers(commandCentre.getGatherers());
             }
 
         } else {

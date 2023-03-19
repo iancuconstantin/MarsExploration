@@ -23,23 +23,23 @@ import java.util.Map;
 public class Application {
     public static void main(String[] args) {
 
-//        Database database = new Database(
-//                "jdbc:postgresql://localhost:5432/mars_exploration",
-//                "postgres",
-//                "postgres");
-//
-//        Map<String, String> tables = Map.of(
-//                "rover", TableStatements.ROVER,
-//                "command_centre", TableStatements.COMMAND_CENTRE,
-//                "construction", TableStatements.CONSTRUCTION
-//        );
-//
-//        TableInitializer tableInitializer = new TableInitializer(database, tables);
-//        tableInitializer.initialize();
-//
-//        RoverRepository roverRepository = new RoverRepository(database);
-//        CommandCentreRepository commandCentreRepository = new CommandCentreRepository(database);
-//        ConstructionRepository constructionRepository = new ConstructionRepository(database);
+        Database database = new Database(
+                "jdbc:postgresql://localhost:5432/mars_exploration",
+                "postgres",
+                "postgres");
+
+        Map<String, String> tables = Map.of(
+                "rover", TableStatements.ROVER,
+                "command_centre", TableStatements.COMMAND_CENTRE,
+                "construction", TableStatements.CONSTRUCTION
+        );
+
+        TableInitializer tableInitializer = new TableInitializer(database, tables);
+        tableInitializer.initialize();
+
+        RoverRepository roverRepository = new RoverRepository(database);
+        CommandCentreRepository commandCentreRepository = new CommandCentreRepository(database);
+        ConstructionRepository constructionRepository = new ConstructionRepository(database);
 
         List<Analyzer> analyzerList = new ArrayList<>();
         analyzerList.add(new TimeOutAnalizer());
@@ -61,11 +61,10 @@ public class Application {
                 "src/main/resources/exploration-1111.log");
 
         Context context = simulator.simulate(input);
-        System.out.println(context);
-//        if (context != null){
-//            DBSaverUI dbSaverUI = new DBSaverUI(commandCentreRepository, constructionRepository, roverRepository,context);
-//            dbSaverUI.run();;
-//        }
+        if (context != null){
+            DBSaverUI dbSaverUI = new DBSaverUI(commandCentreRepository, constructionRepository, roverRepository,context);
+            dbSaverUI.run();;
+        }
 
     }
 }

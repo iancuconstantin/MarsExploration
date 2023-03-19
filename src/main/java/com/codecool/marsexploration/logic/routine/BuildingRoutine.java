@@ -8,6 +8,6 @@ public class BuildingRoutine implements Routine {
     @Override
     public void move(Context context) {
         Explorer rover = context.getExplorer();
-        rover.buildCommandCentre(context);
+        rover.buildOrMoveTowardsCommandCentre(context);
     }
 }

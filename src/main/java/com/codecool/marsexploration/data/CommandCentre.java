@@ -3,7 +3,6 @@ package com.codecool.marsexploration.data;
 
 import com.codecool.marsexploration.data.rover.Explorer;
 import com.codecool.marsexploration.data.rover.Gatherer;
-import com.codecool.marsexploration.logic.routine.GatherRoutine;
 
 import java.util.*;
 
@@ -23,7 +22,6 @@ public class CommandCentre {
     private final Character[][] mapPlacedOn;
     private final int REQUIRED_MINERALS_FOR_NEW_ROVER = 10;
 
-
     public CommandCentre(Coordinate location, Context context) {
         this.id = UUID.randomUUID();
         this.location = location;
@@ -36,21 +34,19 @@ public class CommandCentre {
     }
 
     public void buildInitialGatherer(Context context) {
-        Optional<Gatherer> initialGatherer = buildGatherer();
-        if(initialGatherer.isEmpty()) {
-            throw new RuntimeException("Command center cannot build a gatherer");
-        }
+            Optional<Gatherer> initialGatherer = buildGatherer();
+            if(initialGatherer.isEmpty()) {
+                throw new RuntimeException("Command center cannot build a gatherer");
+            }
 
-        Optional<IdentifiedResource> picked = pickAvailableResource();
+            Optional<IdentifiedResource> picked = pickAvailableResource();
 
-        if(picked.isEmpty()) {
-            throw new RuntimeException("Command center build without a resource");
-        } else {
-            assignResourceToGatherer(initialGatherer.get(), picked.get(), context.getMap());
-        }
+            if(picked.isEmpty()) {
+                throw new RuntimeException("Command center build without a resource");
+            } else {
+                assignResourceToGathererAndInitializeData(initialGatherer.get(), picked.get(), context.getMap());
+            }
     }
-
-
 
     public Optional<Gatherer> buildGatherer() {
         int availableMineral = resourceInventory.get(MINERAL);
@@ -64,9 +60,9 @@ public class CommandCentre {
 
         return Optional.empty();
     }
-    public void assignResourceToGatherer(Gatherer gatherer, IdentifiedResource identifiedResource, Character[][] mapPlacedOn) {
+    public void assignResourceToGathererAndInitializeData(Gatherer gatherer, IdentifiedResource identifiedResource, Character[][] mapPlacedOn) {
         identifiedResource.setAvailableToBeAssigned(false);
-        gatherer.setAssignedResource(identifiedResource, mapPlacedOn);
+        gatherer.setAssignedResourceAndInitializeData(identifiedResource, mapPlacedOn);
     }
 
     private List<IdentifiedResource> identifyInSightResources(Context context) {
@@ -103,22 +99,12 @@ public class CommandCentre {
         return resourcesInSight.stream()
                 .filter(IdentifiedResource::isAvailableToBeAssigned)
                 .findFirst();
-
-//        if (getResourceManaged() < getResourcesInSight().size() - 1) {
-//            Coordinate resCoordinate = new Coordinate(
-//                    getResourcesInSight().get(getResourceManaged()).getLocation().x(),
-//                    getResourcesInSight().get(getResourceManaged()).getLocation().y());
-//            rovers.put(new Rover(coordinate, 5, new GatherRoutine()), resCoordinate);
-//            resourceManaged++;
-//            int newValue = resourceInventory.get(MINERAL) - REQUIRED_MINERALS_FOR_NEW_ROVER;
-//            setResourceInventory(newValue);
-//        }
     }
 
     public void collectResources(Symbol type, int amount) {
         resourceInventory.put(type, resourceInventory.get(type) + amount);
 
-        if (resourcesInSight.size() != gatherers.size() && type.equals(MINERAL)){
+        if (resourcesInSight.size() != gatherers.size() && type == MINERAL){
             boolean hasEnoughMineralsForNewGatherer = checkInventoryForMinerals();
             if(hasEnoughMineralsForNewGatherer){
                 Optional<Gatherer> newGatherer = buildGatherer();
@@ -128,9 +114,12 @@ public class CommandCentre {
 
                 Optional<IdentifiedResource> picked = pickAvailableResource();
                 if(picked.isEmpty()){
-                    throw new RuntimeException("Command center build without a resource for new gatherer");
+                    //TODO - fix bug (app runs many times into this error);
+                    throw new RuntimeException("Command center build without an assigned resource for new gatherer");
                 }else{
-                    assignResourceToGatherer(newGatherer.get(), picked.get(), mapPlacedOn);
+                    //TODO - might be because of below method???
+                    assignResourceToGathererAndInitializeData(newGatherer.get(), picked.get(), mapPlacedOn);
+                    gatherers.add(newGatherer.get());
                 }
             }
         }
@@ -176,6 +165,10 @@ public class CommandCentre {
     }
 
     private boolean checkInventoryForMinerals() {
-        return resourceInventory.get(MINERAL) == REQUIRED_MINERALS_FOR_NEW_ROVER;
+        return resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER;
+    }
+
+    public void setGatherers(List<Gatherer> gatherersCopy) {
+        gatherers = gatherersCopy;
     }
 }

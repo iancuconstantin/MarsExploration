@@ -18,30 +18,49 @@ public class Gatherer extends Rover {
     private final Map<Symbol, Integer>  resourcesInBag;
     private List<Coordinate> pathToResource;
     private final CommandCentre ownedBy;
-    private boolean hasGathered;
-    private int GATHERING_POWER = 5 ;
+    private int GATHERING_POWER = 1 ;
 
     public Gatherer(CommandCentre ownedBy) {
         super(ownedBy.getLocation());
         Routine routine = new GatherRoutine(this);
         setState(routine);
         this.ownedBy = ownedBy;
+        this.assignedResource = null;
         this.pathToResource = null;
         this.resourcesInBag = new HashMap<>();
-        this.totalGatheredResources = new HashMap<>();
-        hasGathered = false;
+        this.totalGatheredResources = initTotalGatheredResources();
     }
 
-    private Map<Symbol, Integer> initTotalGatheredResources() {
-        Map<Symbol, Integer> totalStored = new HashMap<>();
-        totalStored.put(MINERAL, 0);
-        totalStored.put(Symbol.WATER, 0);
-
-        return totalStored;
+    public void dropHarvest(Context context) {
+        Symbol typeOfResource = assignedResource.getResourceType();
+        int amountToBeCollected = resourcesInBag.get(typeOfResource);
+        ownedBy.collectResources(typeOfResource, amountToBeCollected);
+        resourcesInBag.put(typeOfResource, 0);
     }
 
-    private void initBag() {
-        resourcesInBag.put(assignedResource.getResourceType(), 0);
+    public void setAssignedResourceAndInitializeData(IdentifiedResource assignedResource, Character[][] mapPlacedOn) {
+        this.assignedResource = assignedResource;
+        this.pathToResource = MapUtils.getShortestRoute(
+                mapPlacedOn,
+                ownedBy.getLocation(),
+                assignedResource.getLocation()
+        );
+        initBag();
+    }
+
+    public boolean isAtGatheringSpot(){
+        return getCurrentLocation().x() == assignedResource.getLocation().x() &&
+                getCurrentLocation().y() == assignedResource.getLocation().y();
+    }
+
+    public boolean isAtCommandCentreSpot(){
+        return getCurrentLocation().x() == ownedBy.getLocation().x() &&
+                getCurrentLocation().y() == ownedBy.getLocation().y();
+    }
+
+    public void gather() {
+        resourcesInBag.put(assignedResource.getResourceType(), GATHERING_POWER);
+        totalGatheredResources.put(assignedResource.getResourceType(), totalGatheredResources.get(MINERAL)  + GATHERING_POWER);
     }
 
     public Map<Symbol, Integer> getGatheredResources() {
@@ -64,47 +83,25 @@ public class Gatherer extends Rover {
         return ownedBy;
     }
 
-    public void setAssignedResource(IdentifiedResource assignedResource, Character[][] mapPlacedOn) {
-        this.assignedResource = assignedResource;
-        this.pathToResource = MapUtils.getShortestRoute(
-                mapPlacedOn,
-                ownedBy.getLocation(),
-                assignedResource.getLocation()
-        );
-        initBag();
-    }
-
     public boolean hasGathered() {
-        return hasGathered;
-    }
-
-    public void gather() {
-        resourcesInBag.put(assignedResource.getResourceType(), GATHERING_POWER);
-        totalGatheredResources.put(assignedResource.getResourceType(), totalGatheredResources.getOrDefault(MINERAL, 0)  + GATHERING_POWER);
-        hasGathered = true;
-    }
-
-    public void dropHarvest() {
-        Symbol typeOfResource = assignedResource.getResourceType();
-        int amountToBeCollected = resourcesInBag.get(typeOfResource);
-        ownedBy.collectResources(typeOfResource, amountToBeCollected );
-        hasGathered = false;
-        resourcesInBag.put(typeOfResource, 0);
+        return totalGatheredResources.get(assignedResource.getResourceType()) - resourcesInBag.get(assignedResource.getResourceType())
+                ==
+                totalGatheredResources.get(assignedResource.getResourceType()) - GATHERING_POWER;
     }
 
     public int getGATHERING_POWER() {
         return GATHERING_POWER;
     }
 
-    public boolean isAtGatheringSpot(){
-        return getCurrentLocation().equals(pathToResource.get(pathToResource.size()-1));
+    private void initBag() {
+        resourcesInBag.put(assignedResource.getResourceType(), 0);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Gatherer)) return false;
-        Gatherer gatherer = (Gatherer) o;
-        return Objects.equals(pathToResource, gatherer.pathToResource);
+    private Map<Symbol, Integer> initTotalGatheredResources() {
+        Map<Symbol, Integer> totalStored = new HashMap<>();
+        totalStored.put(MINERAL, 0);
+        totalStored.put(Symbol.WATER, 0);
+
+        return totalStored;
     }
 }

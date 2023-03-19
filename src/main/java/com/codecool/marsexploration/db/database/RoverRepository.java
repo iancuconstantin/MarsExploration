@@ -56,6 +56,7 @@ public class RoverRepository {
     private void prepare(DBRover rover, PreparedStatement statement) throws  SQLException {
         statement.setObject(1, UUID.fromString(rover.id().toString()), Types.OTHER);
         statement.setInt(2,rover.gathered_minerals());
+        statement.setInt(3, rover.gathered_water());
     }
 }
 
