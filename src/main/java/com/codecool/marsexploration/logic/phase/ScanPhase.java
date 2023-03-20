@@ -2,8 +2,8 @@ package com.codecool.marsexploration.logic.phase;
 
 import com.codecool.marsexploration.data.Context;
 import com.codecool.marsexploration.data.Coordinate;
-import com.codecool.marsexploration.data.Rover;
 import com.codecool.marsexploration.data.Symbol;
+import com.codecool.marsexploration.data.rover.Explorer;
 
 import java.util.Arrays;
 
@@ -26,8 +26,8 @@ public class ScanPhase implements Phase {
     }
 
     private Coordinate[] getSightBounds(Context context) {
-        Coordinate roverPsn = context.getRover().getCoordinate();
-        int sight = context.getRover().getSight();
+        Coordinate roverPsn = context.getExplorer().getCurrentLocation();
+        int sight = context.getExplorer().getSight();
 
         int maxX = Math.min((roverPsn.x() + sight), context.getMap().length - 1);
         int minX = Math.max((roverPsn.x() - sight), MIN_INDEX);
@@ -45,7 +45,7 @@ public class ScanPhase implements Phase {
     }
 
     private void addSighting(Coordinate coordinate, Context context) {
-        Rover rover = context.getRover();
+        Explorer rover = context.getExplorer();
         Character[][] map = context.getMap();
         String currentSymbol = map[coordinate.x()][coordinate.y()].toString();
         rover.getSightings().put(coordinate, currentSymbol);

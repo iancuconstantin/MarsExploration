@@ -1,8 +1,8 @@
 package com.codecool.marsexploration.utils;
 
 import com.codecool.marsexploration.data.Coordinate;
-import com.codecool.marsexploration.data.Rover;
 import com.codecool.marsexploration.data.Symbol;
+import com.codecool.marsexploration.data.rover.Rover;
 
 import java.util.*;
 

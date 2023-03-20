@@ -19,7 +19,7 @@ public class LackOfResourcesAnalyzer implements Analyzer {
     public Optional<Outcome> analyze(Context context) {
         if(iterationsWithoutResources == 0) setIterationsLimit(context);
 
-        Map<Coordinate, String> sightings = context.getRover().getSightings();
+        Map<Coordinate, String> sightings = context.getExplorer().getSightings();
         int mineralsCount = 0;
         int waterCount = 0;
 

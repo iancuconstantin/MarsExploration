@@ -1,27 +1,66 @@
 package com.codecool.marsexploration.utils;
 
 import com.codecool.marsexploration.data.Context;
-import com.codecool.marsexploration.logic.routine.BuildingRoutine;
-
+import com.codecool.marsexploration.data.rover.Explorer;
+import com.codecool.marsexploration.data.rover.Gatherer;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import static com.codecool.marsexploration.utils.LogMessageCreator.*;
 
 public class LogSaver {
 
+    private int gathererIndex = 0;
+
     public void logStep(Context context){
-        String content;
-        if(!(context.getRover().getState() instanceof BuildingRoutine)){
-            content = "STEP-" + context.getStepNumber() + "; EVENT position; UNIT ROVER-" + context.getRover().getId() + "; POSITION [" + context.getRover().getCoordinate().x() + "," +context.getRover().getCoordinate().y() + "]";
-            if (context.getOutcome().isPresent()) {
-                content += "\nEVENT outcome; OUTCOME " + context.getOutcome().get().getStatusMessage();
+        String content ="";
+        Explorer explorer = context.getExplorer();
+        if(context.noCommandCentreAvailable()){
+
+            if(!explorer.isOnBuildingRoutine()){
+                content = createExplorerPositionLogMessage( context.getStepNumber(),explorer);
+
+                if (context.getOutcome().isPresent()) {
+                    content += createFoundOutcomeLogMessage(context.getOutcome().get().getStatusMessage());
+                }
+            } else {
+                if (!explorer.isBuilding()) {
+                    content = createExplorerMoveToBuildingSpotLogMessage(context.getStepNumber(), explorer);
+                } else {
+                    content = createExplorerBuildingLogMessage(context.getStepNumber(), explorer);
+                }
             }
-        } else {
-            if (!context.getRover().getRouteToBuildingSpot().isEmpty()) {
-                content = "STEP-" + context.getStepNumber() + "; EVENT position(move to building spot); UNIT ROVER-" + context.getRover().getId() + "; POSITION [" + context.getRover().getCoordinate().x() + "," +context.getRover().getCoordinate().y() + "]";
-            }else{
-                content = "STEP-" + context.getStepNumber() + "; EVENT building; UNIT ROVER- " + context.getRover().getId() +  "; Building step - " + context.currentStepsInConstruction + "/" + context.stepsNeededForConstruction + "; COMMAND CENTRE LOCATION - " + context.getRover().getBuildCommandCentreSpot() +"; RESOURCES USED - " +  (20 - context.getRover().getStoredResources()) + "/" + 20   + "; Progress: " + ((20 - context.getRover().getStoredResources()) * 100 / 20.0) +  "%";
+        }else{
+            // TODO - ASK ADAM ?
+            //            for(Gatherer gatherer :context.getCommandCentres().get(0).getGatherers() ){
+            //                if (gatherer.isAtGatheringSpot()) {
+            //                    content = createGatheringLogMessage(context.getStepNumber(),  gatherer);
+            //                } else if(gatherer.isAtCommandCentreSpot() && gatherer.hasGathered()) {
+            //                    content = createDeliveringResourceLogMessage(context.getStepNumber(), gatherer);
+            //                } else if (gatherer.hasGathered() && !gatherer.isAtCommandCentreSpot()) {
+            //                    content = createGathererReturnToBaseLogMessage(context.getStepNumber(), gatherer);
+            //
+            //                } else{
+            //                    content = createMoveToGatheringSpotLogMessage(context.getStepNumber(),gatherer);
+            //                }
+            //                context.incrementStepNumber();
+            //            }
+            Gatherer rover = context.getCommandCentres().get(0).getGatherers().get(gathererIndex);
+            gathererIndex = gathererIndex + 1 > context.getCommandCentres().get(0).getGatherers().size() - 1
+                    ? 0
+                    : gathererIndex + 1;
+            System.out.println(gathererIndex);
+
+            if (rover.isAtGatheringSpot()) {
+                content = createGatheringLogMessage(context.getStepNumber(),  rover);
+            } else if(rover.isAtCommandCentreSpot() && rover.hasGathered()) {
+                content = createDeliveringResourceLogMessage(context.getStepNumber(), rover);
+            } else if (rover.hasGathered() && !rover.isAtCommandCentreSpot()) {
+                    content = createGathererReturnToBaseLogMessage(context.getStepNumber(), rover);
+            } else{
+                content = createMoveToGatheringSpotLogMessage(context.getStepNumber(),rover);
             }
+
         }
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(context.getLogPath(), true))){
@@ -31,4 +70,6 @@ public class LogSaver {
             System.out.println("An error occurred while trying to write the file.\n Error message: " + e.getMessage());
         }
     }
+
+
 }

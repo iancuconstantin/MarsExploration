@@ -61,7 +61,6 @@ public class Application {
                 "src/main/resources/exploration-1111.log");
 
         Context context = simulator.simulate(input);
-
         if (context != null){
             DBSaverUI dbSaverUI = new DBSaverUI(commandCentreRepository, constructionRepository, roverRepository,context);
             dbSaverUI.run();;

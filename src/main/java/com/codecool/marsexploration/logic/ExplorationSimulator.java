@@ -1,6 +1,8 @@
 package com.codecool.marsexploration.logic;
 
 import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.data.rover.Explorer;
+import com.codecool.marsexploration.data.rover.Gatherer;
 import com.codecool.marsexploration.logic.analyzer.CheckLandingCoordonates;
 import com.codecool.marsexploration.logic.phase.LogPhase;
 import com.codecool.marsexploration.logic.phase.Phase;
@@ -12,6 +14,9 @@ import com.codecool.marsexploration.utils.LogSaver;
 import com.codecool.marsexploration.utils.ReadFile;
 
 import java.util.*;
+
+import static com.codecool.marsexploration.data.Symbol.MINERAL;
+import static com.codecool.marsexploration.data.Symbol.WATER;
 
 public class ExplorationSimulator{
     private List<Phase> phases;
@@ -41,27 +46,53 @@ public class ExplorationSimulator{
         }
 
         if (context.getOutcome().orElse(null).getStatusMessage().equals(Outcome.COLONIZABLE.getStatusMessage())){
-            context.getRover().setState(new BuildingRoutine());
-            int commandCentresAvailable = context.getCommandCentres().size();
-            while(context.getCommandCentres().isEmpty() || commandCentresAvailable + 1  != context.getCommandCentres().size()){
-                context.getRover().getState().move(context);
-                logPhase.perform(context);
-                context.incrementStepNumber();
+            context.getExplorer().setState(new BuildingRoutine());
+            context.getExplorer().findAndAssignBestBuildingSpot(context);
+            context.getExplorer().initRouteToBuildingSpot(context);
+
+            while(context.getCommandCentres().isEmpty()){
+                    context.getExplorer().getState().move(context);
+                    logPhase.perform(context);
+                    context.incrementStepNumber();
+            }
+
+            while(context.getCommandCentres().get(0).getGatherers().size() != context.getCommandCentres().get(0).getResourcesInSight().size()){
+                List<Gatherer> gatherersCopy = new ArrayList<>(context.getCommandCentres().get(0).getGatherers());
+                //TODO ASK ADAM
+                CommandCentre commandCentre = context.getCommandCentres().get(0);
+                for (Gatherer gatherer : gatherersCopy) {
+                    gatherer.getState().move(context);
+                    logPhase.perform(context);
+                    context.incrementStepNumber();
+                }
+                commandCentre.setGatherers(commandCentre.getGatherers());
             }
 
         } else {
-            context.getRover().setState(new ReturningRoutine());
-            while (!context.getRover().getCoordinate().equals(context.getLanding())){
-                context.getRover().getState().move(context);
+            context.getExplorer().setState(new ReturningRoutine());
+            while (!context.getExplorer().getCurrentLocation().equals(context.getLanding())){
+                context.getExplorer().getState().move(context);
             }
         }
-
+        System.out.println(context);
         return context;
+    }
+
+    private boolean allBasesHaveMaxNumberOfGatherers(Context context){
+        boolean allCentresHaveEqualResources = true;
+        List<CommandCentre> commandCentres = context.getCommandCentres();
+        for (CommandCentre centre : commandCentres) {
+            if (centre.getGatherers().size() != centre.getResourcesInSight().size()) {
+                allCentresHaveEqualResources = false;
+                break;
+            }
+        }
+        return allCentresHaveEqualResources;
     }
 
     private Context process(SimulationInput input) {
         Routine state = new ExploringRoutine();
-        Rover rover = new Rover(input.landing(),5,state);
+        Explorer rover = new Explorer(input.landing(),state,5);
         return new Context(0,100,getMap(input.mapPath()),input.landing(),rover,input.logPath());
     }
 

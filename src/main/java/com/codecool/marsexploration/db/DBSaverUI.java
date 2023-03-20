@@ -1,6 +1,7 @@
 package com.codecool.marsexploration.db;
 
 import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.data.rover.Gatherer;
 import com.codecool.marsexploration.db.data.DBCommandCentre;
 import com.codecool.marsexploration.db.data.DBConstruction;
 import com.codecool.marsexploration.db.data.DBRover;
@@ -10,6 +11,9 @@ import com.codecool.marsexploration.db.database.RoverRepository;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.codecool.marsexploration.data.Symbol.MINERAL;
+import static com.codecool.marsexploration.data.Symbol.WATER;
 
 public class DBSaverUI {
 
@@ -29,23 +33,31 @@ public class DBSaverUI {
         List<CommandCentre> commandCentres = context.getCommandCentres();
 
         for(CommandCentre cmd : commandCentres){
+            int totalMinerals = 0;
+            int totalWater = 0;
+            for (Gatherer gatherer : cmd.getGatherers()) {
+                Map<Symbol, Integer> totalGatheredResources = gatherer.getTotalGatheredResources();
+                totalMinerals += totalGatheredResources.getOrDefault(MINERAL, 0);
+                totalWater += totalGatheredResources.getOrDefault(WATER, 0);
+            }
             commandCentreRepository.save(
                     new DBCommandCentre(
                             cmd.getId(),
                             cmd.getLocation().x(),
                             cmd.getLocation().y(),
                             cmd.getResourcesInSight().size(),
-                            cmd.getQuantityStored().get(Symbol.MINERAL),
-                            cmd.getQuantityStored().get(Symbol.WATER)
+                            totalMinerals,
+                            totalWater
                     )
             );
-            for (Map.Entry<Rover, Coordinate> entry : cmd.getRovers().entrySet()){
-                Rover rover = entry.getKey();
+            for (Gatherer gatherer : cmd.getGatherers()){
+
                 roverRepository.save(
                         new DBRover(
-                                rover.getId(),
-                                rover.getTotalGatheredResources().get(Symbol.MINERAL),
-                                rover.getTotalGatheredResources().get(Symbol.WATER)
+                                gatherer.getOwnedBy().getId(),
+                                gatherer.getId(),
+                                gatherer.getTotalGatheredResources().get(MINERAL),
+                                gatherer.getTotalGatheredResources().get(WATER)
                         )
                 );
             }
@@ -53,7 +65,7 @@ public class DBSaverUI {
             constructionRepository.save(
                     new DBConstruction(
                             cmd.getId(),
-                            cmd.getRovers().size() * 20
+                            cmd.getGatherers().size() * 20
                     )
             );
         }

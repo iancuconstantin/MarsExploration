@@ -1,31 +1,142 @@
 package com.codecool.marsexploration.data;
 
 
-import com.codecool.marsexploration.logic.routine.GatherRoutine;
+import com.codecool.marsexploration.data.rover.Explorer;
+import com.codecool.marsexploration.data.rover.Gatherer;
+
 import java.util.*;
+
+import static com.codecool.marsexploration.data.Symbol.MINERAL;
+import static com.codecool.marsexploration.data.Symbol.WATER;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class CommandCentre {
 
-    private final Coordinate location;
     private final UUID id;
     private final int sight;
-    private Map<Rover, Coordinate> rovers;
-    private List<Coordinate> resourcesInSight;
-
-    private Map<Symbol, Integer> quantityStored;
-
-    private int resourceManaged;
-
+    private List<IdentifiedResource> resourcesInSight;
+    private final Coordinate location;
+    private List<Gatherer> gatherers;
+    private final Map<Symbol, Integer> resourceInventory;
+    private final Character[][] mapPlacedOn;
     private final int REQUIRED_MINERALS_FOR_NEW_ROVER = 10;
 
     public CommandCentre(Coordinate location, Context context) {
         this.id = UUID.randomUUID();
         this.location = location;
-        this.sight = 5;
-        this.rovers = new HashMap<>();
-        this.resourcesInSight = getListOfResources(context);
-        this.quantityStored = initQuantityStored();
-        this.resourceManaged = 0;
+        this.sight = 8;
+        this.gatherers = new ArrayList<>();
+        this.resourcesInSight = identifyInSightResources(context);
+        this.resourceInventory = initQuantityStored(context.getExplorer());
+        this.mapPlacedOn = context.getMap();
+        buildInitialGatherer(context);
+    }
+
+    public void buildInitialGatherer(Context context) {
+            Optional<Gatherer> initialGatherer = buildGatherer();
+            if(initialGatherer.isEmpty()) {
+                throw new RuntimeException("Command center cannot build a gatherer");
+            }
+
+            Optional<IdentifiedResource> picked = pickAvailableResource();
+
+            if(picked.isEmpty()) {
+                throw new RuntimeException("Command center build without a resource");
+            } else {
+                assignResourceToGathererAndInitializeData(initialGatherer.get(), picked.get(), context.getMap());
+            }
+    }
+
+    public Optional<Gatherer> buildGatherer() {
+        int availableMineral = resourceInventory.get(MINERAL);
+        if (availableMineral >= 10) {
+            resourceInventory.put(MINERAL, availableMineral - 10);
+            Gatherer gatherer = new Gatherer(this);
+            gatherers.add(gatherer);
+
+            return Optional.of(gatherer);
+        }
+
+        return Optional.empty();
+    }
+    public void assignResourceToGathererAndInitializeData(Gatherer gatherer, IdentifiedResource identifiedResource, Character[][] mapPlacedOn) {
+        identifiedResource.setAvailableToBeAssigned(false);
+        gatherer.setAssignedResourceAndInitializeData(identifiedResource, mapPlacedOn);
+    }
+
+    private List<IdentifiedResource> identifyInSightResources(Context context) {
+        List<IdentifiedResource> resourcesInSight = new ArrayList<>();
+        Character[][] map = context.getMap();
+        for (int x = max(location.x() - sight, 0); x <= min(location.x() + sight, map.length); x++) {
+            for (int y = max(location.y() - sight, 0); y <= min(location.y() + sight, map.length); y++) {
+                if (MINERAL.getSymbol().equals(map[x][y].toString())) {
+                    resourcesInSight.add(
+                            new IdentifiedResource(MINERAL, new Coordinate(x, y)));
+                } else if (WATER.getSymbol().equals(map[x][y].toString())) {
+                    resourcesInSight.add(
+                            new IdentifiedResource(WATER, new Coordinate(x, y)));
+                }
+            }
+        }
+        return resourcesInSight;
+    }
+
+    public List<Coordinate> checkFreeSpotForRover(Context context, Coordinate coordinate) {
+        List<Coordinate> freeSpots = new ArrayList<>();
+        Character[][] map = context.getMap();
+        for (int x = coordinate.x() - 1; x <= coordinate.x() + 1; x++) {
+            for (int y = coordinate.y() - 1; y <= coordinate.y() + 1; y++) {
+                if (map[x][y].toString().equals(Symbol.EMPTY.getSymbol())) {
+                    freeSpots.add(new Coordinate(x, y));
+                }
+            }
+        }
+        return freeSpots;
+    }
+
+    public Optional<IdentifiedResource> pickAvailableResource() {
+        return resourcesInSight.stream()
+                .filter(IdentifiedResource::isAvailableToBeAssigned)
+                .findFirst();
+    }
+
+    public void collectResources(Symbol type, int amount) {
+        resourceInventory.put(type, resourceInventory.get(type) + amount);
+
+        if (/*canBuildNewGatherer(type)*/resourcesInSight.size() != gatherers.size() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER){
+            boolean hasEnoughMineralsForNewGatherer = checkInventoryForMinerals();
+            if(hasEnoughMineralsForNewGatherer){
+                Optional<Gatherer> newGatherer = buildGatherer();
+                if(newGatherer.isEmpty()) {
+                    throw new RuntimeException("Command centre could not build a new gatherer");
+                }
+
+                Optional<IdentifiedResource> picked = pickAvailableResource();
+                if(picked.isEmpty()){
+                    //TODO - fix bug (app runs many times into this error);
+                    throw new RuntimeException("Command center build gatherer without an assigned resource for new gatherer");
+                }else{
+                    //TODO - might be because of below method???
+                    assignResourceToGathererAndInitializeData(newGatherer.get(), picked.get(), mapPlacedOn);
+                    gatherers.add(newGatherer.get());
+                }
+            }
+        }
+    }
+
+    //TODO - ASK ADAM WHY THIS TRIGGERS A LOOP?
+    private boolean canBuildNewGatherer(Symbol type) {
+        return hasAvailableResourceToAssign() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER;
+    }
+
+    private boolean hasAvailableResourceToAssign() {
+        for (IdentifiedResource resource : resourcesInSight) {
+            if (resource.isAvailableToBeAssigned()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Coordinate getLocation() {
@@ -40,63 +151,38 @@ public class CommandCentre {
         return sight;
     }
 
-    public Map<Rover, Coordinate> getRovers() {
-        return rovers;
+    public List<Gatherer> getGatherers() {
+        return gatherers;
     }
 
-    public List<Coordinate> getResourcesInSight() {
+    public List<IdentifiedResource> getResourcesInSight() {
         return resourcesInSight;
     }
 
-    public int getResourceManaged() {
-        return resourceManaged;
+    public Map<Symbol, Integer> getResourceInventory() {
+        return resourceInventory;
     }
 
-    public Map<Symbol, Integer> getQuantityStored() {
-        return quantityStored;
+    public int getREQUIRED_MINERALS_FOR_NEW_ROVER() {
+        return REQUIRED_MINERALS_FOR_NEW_ROVER;
     }
 
-    public void setQuantityStored(int newValue) {
-        quantityStored.put(Symbol.MINERAL, newValue);
+    public void setResourceInventory(int newValue) {
+        resourceInventory.put(MINERAL, newValue);
     }
 
-    private Map<Symbol,Integer> initQuantityStored(){
+    private Map<Symbol, Integer> initQuantityStored(Explorer explorer) {
         Map<Symbol, Integer> quantityStored = new HashMap<>();
-        quantityStored.put(Symbol.MINERAL,100);
-        quantityStored.put(Symbol.WATER,100);
+        quantityStored.put(MINERAL, explorer.deliverResourcesForBuildingRover(this));
+        quantityStored.put(Symbol.WATER, 0);
         return quantityStored;
     }
-    private List<Coordinate> getListOfResources(Context context){
-        List<Coordinate> resourcesInSight = new ArrayList<>();
-        Character[][] map = context.getMap();
-        for (int x = location.x() - sight; x <= location.x() + sight; x++) {
-            for (int y = location.y() - sight; y <= location.y() + sight; y++) {
-                if(map[x][y].toString().equals("*") || map[x][y].toString().equals("~")){
-                    resourcesInSight.add(new Coordinate(x,y));
-                }
-            }
-        }
-        return resourcesInSight;
+
+    private boolean checkInventoryForMinerals() {
+        return resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER;
     }
-    public List<Coordinate> checkFreeSpotForRover(Context context,Coordinate coordinate){
-        List<Coordinate> freeSpots = new ArrayList<>();
-        Character[][] map = context.getMap();
-        for (int x = coordinate.x() - 1; x <= coordinate.x() + 1; x++) {
-            for (int y = coordinate.y() - 1; y <= coordinate.y() + 1; y++) {
-                if(map[x][y].toString().equals(Symbol.EMPTY.getSymbol())){
-                    freeSpots.add(new Coordinate(x,y));
-                }
-            }
-        }
-        return freeSpots;
-    }
-    public void createNewRover(Coordinate coordinate){
-        if(getResourceManaged() < getResourcesInSight().size()-1){
-            Coordinate resCoordinate = new Coordinate(getResourcesInSight().get(getResourceManaged()).x(),getResourcesInSight().get(getResourceManaged()).y());
-            rovers.put(new Rover(coordinate,5,new GatherRoutine()),resCoordinate);
-            resourceManaged++;
-            int newValue = quantityStored.get(Symbol.MINERAL)-REQUIRED_MINERALS_FOR_NEW_ROVER;
-            setQuantityStored(newValue);
-        }
+
+    public void setGatherers(List<Gatherer> gatherersCopy) {
+        gatherers = gatherersCopy;
     }
 }

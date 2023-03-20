@@ -32,18 +32,19 @@ public class RoverRepository {
     }
 
     private DBRover toEntity(ResultSet resultSet) throws SQLException {
+        UUID ownedById = (UUID) resultSet.getObject("ownedById");
         UUID id = (UUID) resultSet.getObject("id");
         int gatheredMinerals = resultSet.getInt("gathered_minerals");
         int gatheredWater = resultSet.getInt("gathered_water");
 
-        return new DBRover(id, gatheredMinerals, gatheredWater);
+        return new DBRover(ownedById, id, gatheredMinerals, gatheredWater);
     }
 
     public void save(DBRover rover){
         if (findOneById(rover.id().toString()).isPresent()){
             return;
         }
-        String query = "INSERT INTO rover(id, gathered_minerals, gathered_water) VALUES(?, ?, ?)";
+        String query = "INSERT INTO rover(ownedById, id, gathered_minerals, gathered_water) VALUES(?, ?, ?, ?)";
         try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)){
             prepare(rover, statement);
@@ -54,8 +55,10 @@ public class RoverRepository {
     }
 
     private void prepare(DBRover rover, PreparedStatement statement) throws  SQLException {
-        statement.setObject(1, UUID.fromString(rover.id().toString()), Types.OTHER);
-        statement.setInt(2,rover.gathered_minerals());
+        statement.setObject(1, UUID.fromString(rover.ownedById().toString()), Types.OTHER);
+        statement.setObject(2, UUID.fromString(rover.id().toString()), Types.OTHER);
+        statement.setInt(3,rover.gathered_minerals());
+        statement.setInt(4, rover.gathered_water());
     }
 }
 
