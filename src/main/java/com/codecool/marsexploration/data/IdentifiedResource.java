@@ -37,4 +37,12 @@ public class IdentifiedResource {
     public void setAvailableToBeAssigned(boolean availableToBeAssigned) {
         isAvailableToBeAssigned = availableToBeAssigned;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof IdentifiedResource)) return false;
+
+        IdentifiedResource other = (IdentifiedResource) obj;
+        return this.resourceType == other.resourceType && this.location.equals(other.location);
+    }
 }
