@@ -58,6 +58,7 @@ public class ExplorationSimulator{
 
             while(context.getCommandCentres().get(0).getGatherers().size() != context.getCommandCentres().get(0).getResourcesInSight().size()){
                 List<Gatherer> gatherersCopy = new ArrayList<>(context.getCommandCentres().get(0).getGatherers());
+                //TODO ASK ADAM
                 CommandCentre commandCentre = context.getCommandCentres().get(0);
                 for (Gatherer gatherer : gatherersCopy) {
                     gatherer.getState().move(context);
@@ -73,8 +74,20 @@ public class ExplorationSimulator{
                 context.getExplorer().getState().move(context);
             }
         }
-
+        System.out.println(context);
         return context;
+    }
+
+    private boolean allBasesHaveMaxNumberOfGatherers(Context context){
+        boolean allCentresHaveEqualResources = true;
+        List<CommandCentre> commandCentres = context.getCommandCentres();
+        for (CommandCentre centre : commandCentres) {
+            if (centre.getGatherers().size() != centre.getResourcesInSight().size()) {
+                allCentresHaveEqualResources = false;
+                break;
+            }
+        }
+        return allCentresHaveEqualResources;
     }
 
     private Context process(SimulationInput input) {

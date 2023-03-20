@@ -104,7 +104,7 @@ public class CommandCentre {
     public void collectResources(Symbol type, int amount) {
         resourceInventory.put(type, resourceInventory.get(type) + amount);
 
-        if (resourcesInSight.size() != gatherers.size() && type == MINERAL){
+        if (/*canBuildNewGatherer(type)*/resourcesInSight.size() != gatherers.size() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER){
             boolean hasEnoughMineralsForNewGatherer = checkInventoryForMinerals();
             if(hasEnoughMineralsForNewGatherer){
                 Optional<Gatherer> newGatherer = buildGatherer();
@@ -115,7 +115,7 @@ public class CommandCentre {
                 Optional<IdentifiedResource> picked = pickAvailableResource();
                 if(picked.isEmpty()){
                     //TODO - fix bug (app runs many times into this error);
-                    throw new RuntimeException("Command center build without an assigned resource for new gatherer");
+                    throw new RuntimeException("Command center build gatherer without an assigned resource for new gatherer");
                 }else{
                     //TODO - might be because of below method???
                     assignResourceToGathererAndInitializeData(newGatherer.get(), picked.get(), mapPlacedOn);
@@ -123,6 +123,20 @@ public class CommandCentre {
                 }
             }
         }
+    }
+
+    //TODO - ASK ADAM WHY THIS TRIGGERS A LOOP?
+    private boolean canBuildNewGatherer(Symbol type) {
+        return hasAvailableResourceToAssign() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER;
+    }
+
+    private boolean hasAvailableResourceToAssign() {
+        for (IdentifiedResource resource : resourcesInSight) {
+            if (resource.isAvailableToBeAssigned()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Coordinate getLocation() {
