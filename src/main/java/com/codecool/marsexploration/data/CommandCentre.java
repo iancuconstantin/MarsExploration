@@ -16,6 +16,7 @@ public class CommandCentre {
     private final UUID id;
     private final int sight;
     private List<IdentifiedResource> resourcesInSight;
+    private Queue<IdentifiedResource> resourcesInSightQueue;
     private final Coordinate location;
     private List<Gatherer> gatherers;
     private final Map<Symbol, Integer> resourceInventory;
@@ -27,6 +28,7 @@ public class CommandCentre {
         this.location = location;
         this.sight = 8;
         this.gatherers = new ArrayList<>();
+        this.resourcesInSightQueue = new LinkedList<>();
         this.resourcesInSight = identifyInSightResources(context);
         this.resourceInventory = initQuantityStored(context.getExplorer());
         this.mapPlacedOn = context.getMap();
@@ -39,12 +41,12 @@ public class CommandCentre {
                 throw new RuntimeException("Command center cannot build a gatherer");
             }
 
-            Optional<IdentifiedResource> picked = pickAvailableResource();
+            IdentifiedResource picked = pickAvailableResource();
 
-            if(picked.isEmpty()) {
+            if(picked == null) {
                 throw new RuntimeException("Command center build without a resource");
             } else {
-                assignResourceToGathererAndInitializeData(initialGatherer.get(), picked.get(), context.getMap());
+                assignResourceToGathererAndInitializeData(initialGatherer.get(), picked, context.getMap());
             }
     }
 
@@ -71,11 +73,13 @@ public class CommandCentre {
         for (int x = max(location.x() - sight, 0); x <= min(location.x() + sight, map.length); x++) {
             for (int y = max(location.y() - sight, 0); y <= min(location.y() + sight, map.length); y++) {
                 if (MINERAL.getSymbol().equals(map[x][y].toString())) {
-                    resourcesInSight.add(
-                            new IdentifiedResource(MINERAL, new Coordinate(x, y)));
+                    IdentifiedResource resource = new IdentifiedResource(MINERAL, new Coordinate(x, y));
+                    resourcesInSight.add(resource);
+                    resourcesInSightQueue.add(resource);
                 } else if (WATER.getSymbol().equals(map[x][y].toString())) {
-                    resourcesInSight.add(
-                            new IdentifiedResource(WATER, new Coordinate(x, y)));
+                    IdentifiedResource resource = new IdentifiedResource(WATER, new Coordinate(x, y));
+                    resourcesInSight.add(resource);
+                    resourcesInSightQueue.add(resource);
                 }
             }
         }
@@ -95,16 +99,21 @@ public class CommandCentre {
         return freeSpots;
     }
 
-    public Optional<IdentifiedResource> pickAvailableResource() {
-        return resourcesInSight.stream()
-                .filter(IdentifiedResource::isAvailableToBeAssigned)
-                .findFirst();
+//    public Optional<IdentifiedResource> pickAvailableResource() {
+//       return resourcesInSight.stream()
+//              .filter(IdentifiedResource::isAvailableToBeAssigned)
+//                .findFirst();
+//
+//    }
+
+    public IdentifiedResource pickAvailableResource() {
+        return resourcesInSightQueue.poll();
     }
 
     public void collectResources(Symbol type, int amount) {
         resourceInventory.put(type, resourceInventory.get(type) + amount);
 
-        if (/*canBuildNewGatherer(type)*/resourcesInSight.size() != gatherers.size() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER){
+        if (/*canBuildNewGatherer(type)*/!resourcesInSightQueue.isEmpty() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER){
             boolean hasEnoughMineralsForNewGatherer = checkInventoryForMinerals();
             if(hasEnoughMineralsForNewGatherer){
                 Optional<Gatherer> newGatherer = buildGatherer();
@@ -112,13 +121,13 @@ public class CommandCentre {
                     throw new RuntimeException("Command centre could not build a new gatherer");
                 }
 
-                Optional<IdentifiedResource> picked = pickAvailableResource();
-                if(picked.isEmpty()){
+                IdentifiedResource picked = pickAvailableResource();
+                if(picked == null){
                     //TODO - fix bug (app runs many times into this error);
                     throw new RuntimeException("Command center build gatherer without an assigned resource for new gatherer");
                 }else{
                     //TODO - might be because of below method???
-                    assignResourceToGathererAndInitializeData(newGatherer.get(), picked.get(), mapPlacedOn);
+                    assignResourceToGathererAndInitializeData(newGatherer.get(), picked, mapPlacedOn);
                     gatherers.add(newGatherer.get());
                 }
             }
@@ -157,6 +166,10 @@ public class CommandCentre {
 
     public List<IdentifiedResource> getResourcesInSight() {
         return resourcesInSight;
+    }
+
+    public Queue<IdentifiedResource> getResourcesInSightQueue() {
+        return resourcesInSightQueue;
     }
 
     public Map<Symbol, Integer> getResourceInventory() {
