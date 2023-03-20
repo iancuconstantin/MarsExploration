@@ -49,9 +49,8 @@ public class LogSaver {
             gathererIndex = gathererIndex + 1 > context.getCommandCentres().get(0).getGatherers().size() - 1
                     ? 0
                     : gathererIndex + 1;
-            System.out.println(gathererIndex);
 
-            if (rover.isAtGatheringSpot()) {
+            if (rover.isAtGatheringSpot() && rover.hasGathered()) {
                 content = createGatheringLogMessage(context.getStepNumber(),  rover);
             } else if(rover.isAtCommandCentreSpot() && rover.hasGathered()) {
                 content = createDeliveringResourceLogMessage(context.getStepNumber(), rover);

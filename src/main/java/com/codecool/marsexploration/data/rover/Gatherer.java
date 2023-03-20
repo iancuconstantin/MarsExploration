@@ -8,7 +8,6 @@ import com.codecool.marsexploration.utils.MapUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.codecool.marsexploration.data.Symbol.MINERAL;
 
@@ -29,6 +28,7 @@ public class Gatherer extends Rover {
         this.pathToResource = null;
         this.resourcesInBag = new HashMap<>();
         this.totalGatheredResources = initTotalGatheredResources();
+        //setCurrentTrackRecordIndex(1);
     }
 
     public void dropHarvest(Context context) {

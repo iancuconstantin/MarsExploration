@@ -51,7 +51,6 @@ public class DBSaverUI {
                     )
             );
             for (Gatherer gatherer : cmd.getGatherers()){
-
                 roverRepository.save(
                         new DBRover(
                                 gatherer.getOwnedBy().getId(),

@@ -61,6 +61,8 @@ public class Rover {
         this.state = state;
     }
 
+    public void setCurrentTrackRecordIndex(int index) {currentTrackRecordIndex = index;}
+
     public List<Coordinate> getTrackRecord() {
         return trackRecord;
     }

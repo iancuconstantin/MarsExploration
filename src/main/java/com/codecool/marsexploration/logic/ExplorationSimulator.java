@@ -56,7 +56,7 @@ public class ExplorationSimulator{
                     context.incrementStepNumber();
             }
 
-            while(context.getCommandCentres().get(0).getGatherers().size() != context.getCommandCentres().get(0).getResourcesInSight().size()){
+            while(!context.getCommandCentres().get(0).getResourcesInSightQueue().isEmpty()){
                 List<Gatherer> gatherersCopy = new ArrayList<>(context.getCommandCentres().get(0).getGatherers());
                 //TODO ASK ADAM
                 CommandCentre commandCentre = context.getCommandCentres().get(0);
