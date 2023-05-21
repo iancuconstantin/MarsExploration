@@ -99,13 +99,6 @@ public class CommandCentre {
         return freeSpots;
     }
 
-//    public Optional<IdentifiedResource> pickAvailableResource() {
-//       return resourcesInSight.stream()
-//              .filter(IdentifiedResource::isAvailableToBeAssigned)
-//                .findFirst();
-//
-//    }
-
     public IdentifiedResource pickAvailableResource() {
         return resourcesInSightQueue.poll();
     }
@@ -123,10 +116,8 @@ public class CommandCentre {
 
                 IdentifiedResource picked = pickAvailableResource();
                 if(picked == null){
-                    //TODO - fix bug (app runs many times into this error);
                     throw new RuntimeException("Command center build gatherer without an assigned resource for new gatherer");
                 }else{
-                    //TODO - might be because of below method???
                     assignResourceToGathererAndInitializeData(newGatherer.get(), picked, mapPlacedOn);
                     gatherers.add(newGatherer.get());
                 }
@@ -134,7 +125,6 @@ public class CommandCentre {
         }
     }
 
-    //TODO - ASK ADAM WHY THIS TRIGGERS A LOOP?
     private boolean canBuildNewGatherer(Symbol type) {
         return hasAvailableResourceToAssign() && type == MINERAL && resourceInventory.get(MINERAL) >= REQUIRED_MINERALS_FOR_NEW_ROVER;
     }

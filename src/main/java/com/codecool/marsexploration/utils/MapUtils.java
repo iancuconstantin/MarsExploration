@@ -57,7 +57,6 @@ public class MapUtils {
     public static List<Coordinate> getShortestRoute(Character[][] map, Coordinate from, Coordinate to){
         Queue<Coordinate> queue = new LinkedList<>(); //all nearby spots for current
         Set<Coordinate> visited = new HashSet<>(); //
-        //Map<Coordinate, Integer> distance = new HashMap<>();
         Map<Coordinate, Coordinate> previous = new HashMap<>();
         // queue   - 9, 10,11
         //visited  - F, 1, 2 , 3, 4, 5, 6,7 ,8, 9 , 10, 11

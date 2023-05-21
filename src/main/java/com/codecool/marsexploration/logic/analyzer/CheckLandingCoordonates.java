@@ -3,7 +3,6 @@ package com.codecool.marsexploration.logic.analyzer;
 import com.codecool.marsexploration.data.Context;
 import com.codecool.marsexploration.data.Outcome;
 import com.codecool.marsexploration.data.Symbol;
-import com.codecool.marsexploration.logic.analyzer.Analyzer;
 
 import java.util.Optional;
 

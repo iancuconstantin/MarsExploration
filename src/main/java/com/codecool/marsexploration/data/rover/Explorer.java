@@ -24,7 +24,6 @@ public class Explorer extends Rover {
     public int currentStepsInConstruction = 0;
     public final int STEPS_NEEDED_FOR_CONSTRUCTION = 4;
     private final int DROPPED_RESOURCES_AT_EACH_STEP = 5;
-    //TODO - handle this field for calculations  "private final int INITIAL_MINERALS_CAPACITY = 30";
     private boolean isBuilding = false;
 
     public Explorer(Coordinate coordinate, Routine state, int sight) {
