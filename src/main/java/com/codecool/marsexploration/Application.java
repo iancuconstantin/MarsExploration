@@ -1,6 +1,8 @@
 package com.codecool.marsexploration;
 
-import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.data.Context;
+import com.codecool.marsexploration.data.Coordinate;
+import com.codecool.marsexploration.data.SimulationInput;
 import com.codecool.marsexploration.db.DBSaverUI;
 import com.codecool.marsexploration.db.database.CommandCentreRepository;
 import com.codecool.marsexploration.db.database.ConstructionRepository;
@@ -56,7 +58,7 @@ public class Application {
         ExplorationSimulator simulator = new ExplorationSimulator(phases);
         SimulationInput input = new SimulationInput(
                 "src/main/resources/sprint3-3.map",
-                new Coordinate(16, 7),
+                new Coordinate(24, 18),
                 500,
                 "src/main/resources/exploration-1111.log");
 

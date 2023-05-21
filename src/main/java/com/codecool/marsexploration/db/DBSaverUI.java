@@ -1,6 +1,8 @@
 package com.codecool.marsexploration.db;
 
-import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.data.CommandCentre;
+import com.codecool.marsexploration.data.Context;
+import com.codecool.marsexploration.data.Symbol;
 import com.codecool.marsexploration.data.rover.Gatherer;
 import com.codecool.marsexploration.db.data.DBCommandCentre;
 import com.codecool.marsexploration.db.data.DBConstruction;

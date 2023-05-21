@@ -3,8 +3,6 @@ package com.codecool.marsexploration.utils;
 import com.codecool.marsexploration.data.rover.Explorer;
 import com.codecool.marsexploration.data.rover.Gatherer;
 
-import java.util.UUID;
-
 import static com.codecool.marsexploration.data.Symbol.MINERAL;
 
 public class LogMessageCreator

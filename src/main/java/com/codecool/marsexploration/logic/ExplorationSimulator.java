@@ -1,6 +1,9 @@
 package com.codecool.marsexploration.logic;
 
-import com.codecool.marsexploration.data.*;
+import com.codecool.marsexploration.data.CommandCentre;
+import com.codecool.marsexploration.data.Context;
+import com.codecool.marsexploration.data.Outcome;
+import com.codecool.marsexploration.data.SimulationInput;
 import com.codecool.marsexploration.data.rover.Explorer;
 import com.codecool.marsexploration.data.rover.Gatherer;
 import com.codecool.marsexploration.logic.analyzer.CheckLandingCoordonates;
@@ -13,10 +16,8 @@ import com.codecool.marsexploration.logic.routine.Routine;
 import com.codecool.marsexploration.utils.LogSaver;
 import com.codecool.marsexploration.utils.ReadFile;
 
-import java.util.*;
-
-import static com.codecool.marsexploration.data.Symbol.MINERAL;
-import static com.codecool.marsexploration.data.Symbol.WATER;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExplorationSimulator{
     private List<Phase> phases;
@@ -58,11 +59,10 @@ public class ExplorationSimulator{
 
             while(!context.getCommandCentres().get(0).getResourcesInSightQueue().isEmpty()){
                 List<Gatherer> gatherersCopy = new ArrayList<>(context.getCommandCentres().get(0).getGatherers());
-                //TODO ASK ADAM
                 CommandCentre commandCentre = context.getCommandCentres().get(0);
                 for (Gatherer gatherer : gatherersCopy) {
-                    gatherer.getState().move(context);
                     logPhase.perform(context);
+                    gatherer.getState().move(context);
                     context.incrementStepNumber();
                 }
                 commandCentre.setGatherers(commandCentre.getGatherers());
@@ -74,7 +74,6 @@ public class ExplorationSimulator{
                 context.getExplorer().getState().move(context);
             }
         }
-        System.out.println(context);
         return context;
     }
 

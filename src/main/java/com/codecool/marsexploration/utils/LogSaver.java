@@ -3,9 +3,11 @@ package com.codecool.marsexploration.utils;
 import com.codecool.marsexploration.data.Context;
 import com.codecool.marsexploration.data.rover.Explorer;
 import com.codecool.marsexploration.data.rover.Gatherer;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import static com.codecool.marsexploration.utils.LogMessageCreator.*;
 
 public class LogSaver {
@@ -31,20 +33,6 @@ public class LogSaver {
                 }
             }
         }else{
-            // TODO - ASK ADAM ?
-            //            for(Gatherer gatherer :context.getCommandCentres().get(0).getGatherers() ){
-            //                if (gatherer.isAtGatheringSpot()) {
-            //                    content = createGatheringLogMessage(context.getStepNumber(),  gatherer);
-            //                } else if(gatherer.isAtCommandCentreSpot() && gatherer.hasGathered()) {
-            //                    content = createDeliveringResourceLogMessage(context.getStepNumber(), gatherer);
-            //                } else if (gatherer.hasGathered() && !gatherer.isAtCommandCentreSpot()) {
-            //                    content = createGathererReturnToBaseLogMessage(context.getStepNumber(), gatherer);
-            //
-            //                } else{
-            //                    content = createMoveToGatheringSpotLogMessage(context.getStepNumber(),gatherer);
-            //                }
-            //                context.incrementStepNumber();
-            //            }
             Gatherer rover = context.getCommandCentres().get(0).getGatherers().get(gathererIndex);
             gathererIndex = gathererIndex + 1 > context.getCommandCentres().get(0).getGatherers().size() - 1
                     ? 0
